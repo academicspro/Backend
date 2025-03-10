@@ -8,29 +8,15 @@ import { handlePrismaError } from "../../utils/prismaErrorHandler";
 
 // Register a school
 
-export const registerSchool = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerSchool = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, phone, address, city, state, country, pincode } =
-      req.body;
+    const { name, email, phone, address, city, state, country, pincode } = req.body;
 
     const profilePicFile = req.file;
 
     console.log("logging Request body:", req.body, req.files);
 
-    if (
-      !name ||
-      !phone ||
-      !email ||
-      !address ||
-      !city ||
-      !state ||
-      !country ||
-      !pincode
-    ) {
+    if (!name || !phone || !email || !address || !city || !state || !country || !pincode) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
@@ -40,11 +26,7 @@ export const registerSchool = async (
       res.status(400).json({ error: "Profile picture is required." });
       return;
     }
-    const profilePicUpload = await uploadFile(
-      profilePicFile.buffer,
-      "profile_pics",
-      "image"
-    );
+    const profilePicUpload = await uploadFile(profilePicFile.buffer, "profile_pics", "image");
 
     const tempPassword = randomBytes(6).toString("hex");
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -67,9 +49,7 @@ export const registerSchool = async (
     // Send registration email
     await sendRegistrationEmail(email, tempPassword);
 
-    res
-      .status(200)
-      .json({ message: "School Admin registered successfully", user });
+    res.status(200).json({ message: "School Admin registered successfully", user });
 
     const school = await prisma.school.create({
       data: {
@@ -134,10 +114,13 @@ export const registerSchool = async (
 export const getAllSchools = async (req: Request, res: Response) => {
   try {
     const schools = await prisma.school.findMany({
+      where: {
+        user: {
+          role: "admin", // Directly filter based on the role
+        },
+      },
       include: {
-      
-        user: true, 
-
+        user: true, // Fetch the associated user
       },
     });
 
@@ -149,12 +132,9 @@ export const getAllSchools = async (req: Request, res: Response) => {
   }
 };
 
-
 // // // Get a school by id
 
-
 export const getSchoolById = async (req: Request, res: Response): Promise<any> => {
-
   try {
     const { id } = req.params;
 
@@ -166,10 +146,8 @@ export const getSchoolById = async (req: Request, res: Response): Promise<any> =
     });
 
     if (!school) {
-
-       res.status(404).json({ message: "School not found" });
-       return;
-
+      res.status(404).json({ message: "School not found" });
+      return;
     }
 
     console.log(school);
@@ -179,4 +157,3 @@ export const getSchoolById = async (req: Request, res: Response): Promise<any> =
     res.status(500).json({ message: "Internal server error", error });
   }
 };
-
