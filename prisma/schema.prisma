@@ -1,0 +1,697 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// <------------------------------------------------ Super Admin Models are defined here -------------------------------------------------------------->
+
+model School {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  userId String @unique // Stores the Admin User ID
+
+  user User @relation(fields: [userId], references: [id]) // One-to-One relation with User
+
+  // users         User[]         @relation("SchoolUser")
+  students      Student[]
+  teachers      Teacher[]
+  parents       Parent[]
+  libraries     Library[]
+  hostels       Hostel[]
+  transports    Transport[]
+  accounts      Account[]
+  subscription  subscription[]
+  fees          Fee[]
+  paymentSecret PaymentSecret?
+
+  Ticket Ticket[]
+
+  Feedback Feedback[]
+}
+
+model User {
+  id         String    @id @default(cuid())
+  name       String
+  email      String    @unique
+  phone      String
+  profilePic String?
+  password   String?
+  address    String?
+  city       String?
+  state      String?
+  country    String?
+  pincode    String?
+  bloodType  String?
+  sex        UserSex?
+  role       Role      @default(superadmin)
+  schoolId   String?
+  school     School?
+  students   Student[]
+
+  reputation      Int          @default(0)
+  leaderboard     Leaderboard?
+  coins           Int          @default(0) // Coins earned
+  redeemedBalance Float        @default(0.0) // Money redeemed
+  doubts          Doubt[]
+  answers         Answer[]
+  quizzes         QuizResult[]
+  roadmaps        Roadmap[]
+
+  PasswordResetToken PasswordResetToken[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now()) @updatedAt
+  teacherId          String?
+  studentId          String?
+  parentId           String?
+  libraryId          String?
+  hostelId           String?
+  transportId        String?
+  accountId          String?
+  teachers           Teacher[]
+  parents            Parent[]
+  libraries          Library[]
+  hostels            Hostel[]
+  transports         Transport[]
+  accounts           Account[]
+
+  Todo Todo[]
+
+  Newspaper Newspaper[]
+
+  PYQ PYQ[]
+
+  Competition Competition[]
+
+  Transaction Transaction[]
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([expiresAt])
+}
+
+model plan {
+  id           String   @id @default(cuid())
+  name         String // Basic , Pro , Enterprise
+  price        Float
+  durationDays Int // 7,15,30
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  subscription subscription[]
+}
+
+model subscription {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  planId    String
+  plan      plan     @relation(fields: [planId], references: [id])
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  feeId             String
+  fee               Fee      @relation(fields: [feeId], references: [id])
+  amount            Float
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String?
+  status            String   @default("Pending") // Pending , PAID, Failed
+  paymentDate       DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  Student Student[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  feeId     String
+  type      String // Reminder , Overdue
+  sentAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  status      String   @default("Open") // Open , Closed
+  priority    String   @default("Low") // Low , Medium , High
+  schoolId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  School School @relation(fields: [schoolId], references: [id])
+}
+
+model Feedback {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  schoolId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  School School @relation(fields: [schoolId], references: [id])
+}
+
+model Todo {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  status      TodoStatus @default(PENDING)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// <--------------------------------------------------------------- Admin Models are defined here------------------------------------------------------------------>
+
+model PaymentSecret {
+  id        String   @id @default(cuid())
+  schoolId  String   @unique
+  school    School   @relation(fields: [schoolId], references: [id])
+  keyId     String
+  keySecret String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Fee {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    Student   @relation(fields: [studentId], references: [id])
+  amount     Float
+  dueDate    DateTime
+  finePerDay Float     @default(0)
+  status     String    @default("Pending") // Pending , Partial, PAID , Overdue
+  Payment    Payment[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+
+  School School[]
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  classId     String?
+  class       Class?   @relation(fields: [classId], references: [id])
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  classId     String?
+  class       Class?   @relation(fields: [classId], references: [id])
+}
+
+// <---------------------------------------------------------------- Teacher Models are defined here ------------------------------------------------------------------->
+
+model Teacher {
+  id                    String         @id @default(cuid())
+  dateofJoin            DateTime? //@map("date_of_join")
+  fatherName            String?
+  motherName            String?
+  dateOfBirth           DateTime?
+  maritalStatus         MaritalStatus?
+  languagesKnown        String
+  Qualification         String?
+  workExperience        String?
+  previousSchool        String?
+  previousSchoolAddress String?
+  previousSchoolPhone   String?
+  PanNumber             String?
+  status                String?        @default("Active") // Active , Inactive
+  salary                Int?
+  contractType          String?        @default("Full Time") // Full Time , Part Time
+  dateOfPayment         DateTime?
+  medicalLeave          String?
+  casualLeave           String?
+  MaternityLeave        String?
+  SickLeave             String?
+  accountNumber         String?
+  bankName              String?
+  ifscCode              String?
+  branchName            String?
+  Route                 String?
+  VehicleNumber         String?
+  PickUpPoint           String?
+  hostelName            String?
+  RoomNumber            String?
+  facebook              String?
+  twitter               String?
+  linkedin              String?
+  instagram             String?
+  youtube               String?
+  Resume                String?
+  joiningLetter         String?
+  schoolId              String
+  userId                String?
+  user                  User?          @relation(fields: [userId], references: [id])
+  school                School         @relation(fields: [schoolId], references: [id])
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @default(now()) @updatedAt
+  subjects              Subject[]
+  lessons               Lesson[]
+  classes               Class[]
+}
+
+model Grade {
+  id        String  @id @default(cuid())
+  level     Int     @unique
+  studentId String
+  students  Student @relation(fields: [studentId], references: [id])
+  classess  Class[]
+}
+
+model Class {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  capacity      Int
+  teacherId     String?
+  teacher       Teacher?       @relation(fields: [teacherId], references: [id])
+  lessons       Lesson[]
+  students      Student[]
+  grade         Grade[]
+  events        Event[]
+  announcements Announcement[]
+}
+
+model Subject {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  teachers Teacher[]
+  lessons  Lesson[]
+}
+
+model Lesson {
+  id          String       @id @default(cuid())
+  name        String
+  day         Day
+  startTime   DateTime
+  endTime     DateTime
+  subjectId   String
+  subject     Subject      @relation(fields: [subjectId], references: [id])
+  classId     String
+  class       Class        @relation(fields: [classId], references: [id])
+  teacherId   String
+  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  exams       Exam[]
+  assignments Assignment[]
+  attendances Attendance[]
+}
+
+model Exam {
+  id        String   @id @default(cuid())
+  title     String
+  startTime DateTime
+  endTime   DateTime
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  results   Result[]
+}
+
+model Assignment {
+  id        String   @id @default(cuid())
+  title     String
+  startDate DateTime
+  dueDate   DateTime
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  results   Result[]
+}
+
+model Result {
+  id           String      @id @default(cuid())
+  score        Int
+  examId       String?
+  exam         Exam?       @relation(fields: [examId], references: [id])
+  assignmentId String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      Student     @relation(fields: [studentId], references: [id])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  date      DateTime
+  present   Boolean
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+}
+
+// <--------------------------------------------------------------------------- Student Models are defined here ------------------------------------------------------------------->
+
+model Student {
+  id            String   @id @default(cuid())
+  AcademicYear  String
+  AdmissionNo   String
+  AdmissionDate DateTime
+  RollNo        String
+  status        String?  @default("Active") // Active , Inactive
+
+  section String
+
+  dateOfBirth DateTime
+
+  Religion String?
+  category String?
+
+  caste          String?
+  MotherTongue   String?
+  languagesKnown String
+
+  // Father Details
+  fatherName       String
+  fatheremail      String
+  fatherPhone      String
+  fatherOccupation String
+
+  // Mother Details
+  motherName       String
+  motherEmail      String
+  motherPhone      String
+  motherOccupation String
+
+  // Guardian Details
+
+  gardianName       String
+  gardianRealtion   String
+  gardianEmail      String
+  gardianPhone      String
+  gardianOccupation String
+  gardianAddress    String
+
+  // Siblings Details
+
+  areSiblingStudying  String //later change it to yes no enum 
+  siblingName         String
+  siblingClass        String
+  siblingRollNo       String
+  sibllingAdmissionNo String
+
+  // Address Details
+  currentAddress   String
+  permanentAddress String
+
+  // Transport Details
+
+  route         String
+  vehicleNumber String
+  pickUpPoint   String
+
+  // Hostel Details
+
+  hostelName String
+  roomNumber String
+
+  // Document's
+
+  medicalCertificate  String
+  transferCertificate String
+
+  // medical History
+  medicaConditon String // late change it to enum
+  allergies      String
+  medicationName String
+
+  //previous School Details
+
+  schoolName String
+  Adress     String
+
+  schoolId    String
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+  school      School       @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  classId     String
+  class       Class        @relation(fields: [classId], references: [id])
+  attendances Attendance[]
+  results     Result[]
+  Grade       Grade[]
+  parent      Parent[]
+  fees        Fee[]
+  payments    Payment[]
+}
+
+// <------------------------------------------------------------- Parent Models are defined here ------------------------------------------------------------------->
+
+model Parent {
+  id                String  @id @default(cuid())
+  gardianName       String
+  gardianRealtion   String
+  gardianEmail      String
+  gardianPhone      String
+  gardianOccupation String
+  gardianAddress    String
+  role              Role    @default(parent)
+  password          String?
+
+  schoolId  String
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id])
+  school    School    @relation(fields: [schoolId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  students  Student[]
+}
+
+// <------------------------------------------------------------- Library Models are defined here ------------------------------------------------------------------->
+
+model Library {
+  id        String   @id @default(cuid())
+  schoolId  String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// <------------------------------------------------------------- Hostel Models are defined here ------------------------------------------------------------------->
+
+model Hostel {
+  id        String   @id @default(cuid())
+  schoolId  String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// <------------------------------------------------------------- Transport Models are defined here ------------------------------------------------------------------->
+
+model Transport {
+  id        String   @id @default(cuid())
+  schoolId  String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// <-------------------------------------------------------------- Account Models are defined here ------------------------------------------------------------------->
+
+model Account {
+  id        String   @id @default(cuid())
+  schoolId  String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// <---------------------------------------------------------------- All Enums are defined here  ------------------------------------------------------------------->
+
+enum UserSex {
+  MALE
+  FEMALE
+}
+
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+enum Role {
+  superadmin
+  admin
+  teacher
+  student
+  parent
+  library
+  hostel
+  transport
+  account
+}
+
+enum MaritalStatus {
+  MARRIED
+  UNMARRIED
+  DIVORCED
+}
+
+enum TodoStatus {
+  PENDING
+  COMPLETED
+}
+
+model Doubt {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  answers   Answer[]
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model PYQ {
+  id         String   @id @default(cuid())
+  question   String
+  solution   String
+  subject    String
+  topic      String
+  uploaderId String
+  uploader   User     @relation(fields: [uploaderId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Answer {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  doubtId   String
+  user      User     @relation(fields: [userId], references: [id])
+  doubt     Doubt    @relation(fields: [doubtId], references: [id])
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Leaderboard {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  points      Int      @default(0)
+  coinsEarned Int      @default(0)
+  rank        Int
+  updatedAt   DateTime @updatedAt
+}
+
+model Competition {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Roadmap {
+  id        String   @id @default(cuid())
+  title     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  topics    Topic[]
+  createdAt DateTime @default(now())
+}
+
+model Topic {
+  id        String  @id @default(cuid())
+  name      String
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  question  String
+  options   String[] // Array of options
+  answer    String
+  createdAt DateTime @default(now())
+
+  QuizResult QuizResult[]
+}
+
+model QuizResult {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  user      User     @relation(fields: [userId], references: [id])
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  score     Int
+  createdAt DateTime @default(now())
+}
+
+model Newspaper {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  coinsUsed  Int
+  amountPaid Float
+  status     String   @default("PENDING") // PENDING, COMPLETED, REJECTED
+  createdAt  DateTime @default(now())
+}
+
+// PYQ With Soultion
+// doubt forums
+// leaderboard
+// competitions
+// Roadmap Creation
+// Self enhacement -> quiz , Newspaper reading 
+
+// goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 
+
+// chat --> Add friends, remove friends , chat with friends, can create groups, send media , block user, unblock user , report user, see only thier schools student, video call features , audio call feature , 
+
+// zoom meeting call , White board, screen sharing, recording, chat, raise hand, mute, unmute, video off, video on, share screen, invite, end meeting, leave meeting,
+
+// download reports ,  import Reports , export Reports , Custom report download , print , share Reports ,

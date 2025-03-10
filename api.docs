@@ -1,0 +1,53 @@
+1. Create Payment hook for plans 
+2. Create model Class Based
+3. Create Fees Payment
+4. Create Dobut Fourm 
+5. Create Chat 
+6. Create Zoom
+7. create Todo
+8. Create SelfEnhancment // Quiz, New's Papaer Reading and submit voice Recording , Updated Tech News ,
+9. PYQ With Solution
+10. Semester Roadmap
+11. LeaderBoard 
+12. Admin Can provide any Body any Access of Apis
+13. plan's Middelware
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Add the morgan middleware
+app.use(morganMiddleware);
+// Add the jwt decode middleware
+app.use(injectUserByToken);
+
+
+const server = new http.Server(app);
+
+
+// /ping
+app.get("/ping", (req: Request, res: Response) => {
+  return res.status(200).send("pong");
+});
+
+
+app.use("/auth", authRoutes);
+
+
+process.on("uncaughtException", function (err) {
+  Logger.error(`Error occured: ${getErrorStack(err)}`);
+
+
+  sendErrorMessageToSupport(getErrorStack(err));
+});
+
+
+try {
+  server.listen(port, (): void => {
+    Logger.info(`Connected successfully on port ${port}`);
+  });
+} catch (error) {
+  Logger.error(`Error occured: ${error}`);
+}
+
+
+
