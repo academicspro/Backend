@@ -51,6 +51,7 @@ import newspaperRoutes from "./routes/dashboard/teacher/newspaperRoutes";
 import quizresultRoutes from "./routes/dashboard/teacher/quizresultRoutes";
 import quizRoutes from "./routes/dashboard/teacher/quizRoutes";
 import doubtRoutes from "./routes/dashboard/admin/doubtRoutes";
+import libraryRoutes from "./routes/admin/schoolauthroutes/libraryRoutes";
 
 dotenv.config();
 
@@ -109,6 +110,8 @@ app.use("/api/v1", subjectRoute);
 // Hostel Routes
 
 // Library Routes
+
+app.use("/api/v1", libraryRoutes);
 
 // Transport Routes
 
