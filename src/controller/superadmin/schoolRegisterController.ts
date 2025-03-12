@@ -93,21 +93,21 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
 
 // // // Delete a school
 
-// export const deleteSchool = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
+export const deleteSchool = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
 
-//     const school = await prisma.school.delete({
-//       where: { id },
-//     });
+    const school = await prisma.school.delete({
+      where: { id },
+    });
 
-//     console.log(school);
-//     res.status(200).json({ message: "School deleted successfully", school });
-//   } catch (error) {
-//     console.error("Error deleting school:", error);
-//     res.status(500).json({ message: "Internal server error", error });
-//   }
-// };
+    console.log(school);
+    res.status(200).json({ message: "School deleted successfully", school });
+  } catch (error) {
+    console.error("Error deleting school:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
 
 // // Get all schools
 

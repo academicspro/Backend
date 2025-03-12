@@ -40,6 +40,17 @@ import userRoutes from "./routes/superadmin/userRoutes";
 import ticketRoutes from "./routes/dashboard/superadmin/ticketRoutes";
 import feebackRoutes from "./routes/dashboard/superadmin/feebackRoutes";
 import todoRoutes from "./routes/dashboard/superadmin/todoRoutes";
+import answerRoutes from "./routes/dashboard/admin/answerRoutes";
+import competitionRoutes from "./routes/dashboard/admin/competitionRoutes";
+import leaderboardRoutes from "./routes/dashboard/admin/leaderboardRoutes";
+import pyqRoutes from "./routes/dashboard/admin/pyqRoutes";
+import transactionRoutes from "./routes/dashboard/admin/transactionRoutes";
+import roadmapRoutes from "./routes/dashboard/student/roadmapRoutes";
+import topicRoutes from "./routes/dashboard/student/topicRoutes";
+import newspaperRoutes from "./routes/dashboard/teacher/newspaperRoutes";
+import quizresultRoutes from "./routes/dashboard/teacher/quizresultRoutes";
+import quizRoutes from "./routes/dashboard/teacher/quizRoutes";
+import doubtRoutes from "./routes/dashboard/admin/doubtRoutes";
 
 dotenv.config();
 
@@ -114,6 +125,39 @@ app.use("/api/v1", feebackRoutes);
 
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", todoRoutes);
+
+
+
+
+
+/////////////////////////////////////////////////Routes Need to be Tested //////////////////////////////////////////////////
+
+
+// admin
+app.use("/api/v1", answerRoutes);
+app.use("/api/v1", competitionRoutes);
+app.use("/api/v1", doubtRoutes);
+app.use("/api/v1", leaderboardRoutes);
+app.use("/api/v1", pyqRoutes);
+app.use("/api/v1", transactionRoutes);
+
+// Teacher 
+
+app.use("/api/v1", quizresultRoutes);
+app.use("/api/v1", quizRoutes);
+app.use("/api/v1", newspaperRoutes);
+
+// Student 
+
+app.use("/api/v1", roadmapRoutes);
+app.use("/api/v1", topicRoutes);
+
+
+
+
+
+
+
 
 process.on("uncaughtException", function (err) {
   Logger.error(`Error occured: ${getErrorStack(err)}`);

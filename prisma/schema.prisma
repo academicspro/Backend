@@ -11,7 +11,7 @@ datasource db {
 
 model School {
   id String @id @default(cuid())
-
+  // SchoolName String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -681,17 +681,12 @@ model Transaction {
   createdAt  DateTime @default(now())
 }
 
-// PYQ With Soultion
-// doubt forums
-// leaderboard
-// competitions
-// Roadmap Creation
-// Self enhacement -> quiz , Newspaper reading 
+
 
 // goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 
 
 // chat --> Add friends, remove friends , chat with friends, can create groups, send media , block user, unblock user , report user, see only thier schools student, video call features , audio call feature , 
 
-// zoom meeting call , White board, screen sharing, recording, chat, raise hand, mute, unmute, video off, video on, share screen, invite, end meeting, leave meeting,
+// zoom meeting call , White board(With all Fetures ), screen sharing, recording, chat, raise hand, mute, unmute, video off, video on, share screen, invite, end meeting, leave meeting,
 
 // download reports ,  import Reports , export Reports , Custom report download , print , share Reports ,
