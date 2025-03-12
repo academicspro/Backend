@@ -95,7 +95,7 @@ export const registeraccount = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ message: "account created successfully", user });
+    res.status(200).json({ message: "account created successfully", user, account });
   } catch (error) {
     console.error("Error creating account:", error);
     res.status(500).json({ error: "Something went wrong. Please try again." });
