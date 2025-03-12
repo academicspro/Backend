@@ -129,12 +129,7 @@ app.use("/api/v1", feebackRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", todoRoutes);
 
-
-
-
-
 /////////////////////////////////////////////////Routes Need to be Tested //////////////////////////////////////////////////
-
 
 // admin
 app.use("/api/v1", answerRoutes);
@@ -144,23 +139,16 @@ app.use("/api/v1", leaderboardRoutes);
 app.use("/api/v1", pyqRoutes);
 app.use("/api/v1", transactionRoutes);
 
-// Teacher 
+// Teacher
 
 app.use("/api/v1", quizresultRoutes);
 app.use("/api/v1", quizRoutes);
 app.use("/api/v1", newspaperRoutes);
 
-// Student 
+// Student
 
 app.use("/api/v1", roadmapRoutes);
 app.use("/api/v1", topicRoutes);
-
-
-
-
-
-
-
 
 process.on("uncaughtException", function (err) {
   Logger.error(`Error occured: ${getErrorStack(err)}`);
@@ -172,7 +160,6 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-
 try {
   server.listen(PORT, (): void => {
     Logger.info(`Connected successfully on port ${PORT}`);
@@ -180,6 +167,3 @@ try {
 } catch (error) {
   Logger.error(`Error occured: ${error}`);
 }
-
-
-
