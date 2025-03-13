@@ -3,7 +3,7 @@ import { prisma } from "../../../db/prisma";
 import { handlePrismaError } from "../../../utils/prismaErrorHandler";
 
 // Create a Book
-export const createBook = async (req: Request, res: Response, next: NextFunction) => {
+export const createBook = async (req: Request, res: Response, next: NextFunction) : Promise<any>=> {
   try {
     const { libraryId } = req.params;
     const {
@@ -61,7 +61,7 @@ export const getBooks = async (req: Request, res: Response, next: NextFunction) 
 };
 
 // Get Single Book
-export const getBookById = async (req: Request, res: Response, next: NextFunction) => {
+export const getBookById = async (req: Request, res: Response, next: NextFunction) : Promise<any>=> {
   try {
     const { bookId } = req.params;
     const book = await prisma.book.findUnique({ where: { id: bookId }, include: { authors: true, copies: true } });

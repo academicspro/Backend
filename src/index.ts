@@ -52,6 +52,12 @@ import quizresultRoutes from "./routes/dashboard/teacher/quizresultRoutes";
 import quizRoutes from "./routes/dashboard/teacher/quizRoutes";
 import doubtRoutes from "./routes/dashboard/admin/doubtRoutes";
 import libraryRoutes from "./routes/admin/schoolauthroutes/libraryRoutes";
+import bookcopyRoutes from "./routes/dashboard/library/bookcopyRoutes";
+import bookIssueRoutes from "./routes/dashboard/library/bookIssueRoutes";
+import bookRoutes from "./routes/dashboard/library/bookRoutes";
+import createAuthorRoutes from "./routes/dashboard/library/createAuthorRoutes";
+import disputeRoutes from "./routes/dashboard/library/disputeRoutes";
+import fineManagmentRoutes from "./routes/dashboard/library/fineManagmentRoutes";
 
 dotenv.config();
 
@@ -149,6 +155,16 @@ app.use("/api/v1", newspaperRoutes);
 
 app.use("/api/v1", roadmapRoutes);
 app.use("/api/v1", topicRoutes);
+
+// Library
+
+app.use("/api/v1", bookcopyRoutes);
+app.use("/api/v1", bookIssueRoutes);
+app.use("/api/v1", bookRoutes);
+app.use("/api/v1", createAuthorRoutes);
+app.use("/api/v1", disputeRoutes);
+app.use("/api/v1", fineManagmentRoutes);
+
 
 process.on("uncaughtException", function (err) {
   Logger.error(`Error occured: ${getErrorStack(err)}`);

@@ -6,7 +6,7 @@ import { handlePrismaError } from "../../../utils/prismaErrorHandler";
 
 
 // Create a Book Copy
-export const addBookCopy = async (req: Request, res: Response, next: NextFunction) => {
+export const addBookCopy = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const { libraryId, bookId } = req.params;
         const { accessionNumber } = req.body;

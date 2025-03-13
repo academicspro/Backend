@@ -4,7 +4,7 @@ import { handlePrismaError } from "../../../utils/prismaErrorHandler";
 
 
 // Issue a Book
-export const issueBook = async (req: Request, res: Response, next: NextFunction) => {
+export const issueBook = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
     try {
         const { libraryId } = req.params;
         const { bookCopyId, userId, dueDate } = req.body;
@@ -35,7 +35,7 @@ export const issueBook = async (req: Request, res: Response, next: NextFunction)
 };
 
 // Return a Book
-export const returnBook = async (req: Request, res: Response, next: NextFunction) => {
+export const returnBook = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
     try {
         const { libraryId, issueId } = req.params;
 
