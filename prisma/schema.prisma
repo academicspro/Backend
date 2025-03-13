@@ -10,16 +10,15 @@ datasource db {
 // <------------------------------------------------ Super Admin Models are defined here -------------------------------------------------------------->
 
 model School {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   // SchoolName String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  userId String @unique // Stores the Admin User ID
+  userId String @unique
 
-  user User @relation(fields: [userId], references: [id]) // One-to-One relation with User
+  user User @relation(fields: [userId], references: [id])
 
-  // users         User[]         @relation("SchoolUser")
   students      Student[]
   teachers      Teacher[]
   parents       Parent[]
@@ -90,6 +89,10 @@ model User {
   Competition Competition[]
 
   Transaction Transaction[]
+
+  bookIssues      BookIssue[] // Users who borrow books
+  disputes        Dispute[] // Users raising disputes
+  disputeMessages DisputeMessage[] // Users participating in dispute conversations
 }
 
 model PasswordResetToken {
@@ -491,13 +494,123 @@ model Parent {
 // <------------------------------------------------------------- Library Models are defined here ------------------------------------------------------------------->
 
 model Library {
+  id         String   @id @default(cuid())
+  schoolId   String
+  userId     String?
+  finePerDay Float    @default(0.0) // Fine rate per day for overdue books
+  books      Book[]
+  user       User?    @relation(fields: [userId], references: [id])
+  school     School   @relation(fields: [schoolId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+// Book model (represents book titles, including magazines and comics)
+model Book {
+  id               String       @id @default(cuid())
+  title            String
+  isbn             String?      @unique
+  publicationDate  DateTime?
+  genre            String?
+  type             BookType // Distinguishes books, magazines, comics
+  department       String? // For magazines
+  class            String? // For magazines
+  subject          String? // For magazines
+  edition          String?
+  nextEditionCheck DateTime? // Date to check for new editions
+  libraryId        String
+  library          Library      @relation(fields: [libraryId], references: [id])
+  authors          BookAuthor[] // Many-to-many with authors
+  copies           BookCopy[] // Physical copies of the book
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @default(now()) @updatedAt
+}
+
+// Author model
+model Author {
+  id        String       @id @default(cuid())
+  name      String
+  books     BookAuthor[] // Many-to-many with books
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+// BookAuthor model (junction table for Book-Author relationship)
+model BookAuthor {
+  bookId   String
+  authorId String
+  book     Book   @relation(fields: [bookId], references: [id])
+  author   Author @relation(fields: [authorId], references: [id])
+
+  @@id([bookId, authorId])
+}
+
+// BookCopy model (represents individual physical copies)
+model BookCopy {
+  id              String         @id @default(cuid())
+  bookId          String
+  accessionNumber String         @unique // Unique identifier for each copy
+  status          BookCopyStatus @default(AVAILABLE)
+  book            Book           @relation(fields: [bookId], references: [id])
+  issues          BookIssue[] // History of issues for this copy
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+}
+
+// BookIssue model (tracks borrowing of book copies)
+model BookIssue {
+  id         String    @id @default(cuid())
+  bookCopyId String
+  userId     String
+  issueDate  DateTime
+  dueDate    DateTime
+  returnDate DateTime?
+  fineAmount Float     @default(0.0)
+  finePaid   Boolean   @default(false)
+  bookCopy   BookCopy  @relation(fields: [bookCopyId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  fines      Fine[] // Fines associated with this issue
+  disputes   Dispute[] // Disputes related to this issue
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+}
+
+// Fine model
+model Fine {
+  id          String    @id @default(cuid())
+  bookIssueId String
+  amount      Float
+  reason      String
+  paid        Boolean   @default(false)
+  bookIssue   BookIssue @relation(fields: [bookIssueId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+}
+
+// Dispute model
+model Dispute {
+  id          String           @id @default(cuid())
+  bookIssueId String
+  userId      String
+  reason      String
+  status      DisputeStatus    @default(PENDING)
+  resolution  String?
+  bookIssue   BookIssue        @relation(fields: [bookIssueId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
+  messages    DisputeMessage[] // Conversation thread
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now()) @updatedAt
+}
+
+// DisputeMessage model (conversation thread for disputes)
+model DisputeMessage {
   id        String   @id @default(cuid())
-  schoolId  String
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
-  school    School   @relation(fields: [schoolId], references: [id])
+  disputeId String
+  userId    String
+  message   String
+  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
 }
 
 // <------------------------------------------------------------- Hostel Models are defined here ------------------------------------------------------------------->
@@ -572,6 +685,25 @@ enum MaritalStatus {
 enum TodoStatus {
   PENDING
   COMPLETED
+}
+
+enum BookType {
+  BOOK
+  MAGAZINE
+  COMIC
+}
+
+enum BookCopyStatus {
+  AVAILABLE
+  ISSUED
+  LOST
+  DAMAGED
+}
+
+enum DisputeStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
 }
 
 model Doubt {
@@ -680,8 +812,6 @@ model Transaction {
   status     String   @default("PENDING") // PENDING, COMPLETED, REJECTED
   createdAt  DateTime @default(now())
 }
-
-
 
 // goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 
 
