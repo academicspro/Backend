@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import * as http from "http";
+
 import dotenv from "dotenv";
 import helmet from "helmet";
 import compression from "compression";
@@ -58,6 +58,16 @@ import bookRoutes from "./routes/dashboard/library/bookRoutes";
 import createAuthorRoutes from "./routes/dashboard/library/createAuthorRoutes";
 import disputeRoutes from "./routes/dashboard/library/disputeRoutes";
 import fineManagmentRoutes from "./routes/dashboard/library/fineManagmentRoutes";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import assignTransportRoutes from "./routes/dashboard/transport/assignTransportRoutes";
+import busAttendenceRoutes from "./routes/dashboard/transport/busAttendenceRoutes";
+import busrouteRoutes from "./routes/dashboard/transport/busrouteRoutes";
+import busRoutes from "./routes/dashboard/transport/busRoutes";
+import busStopRoutes from "./routes/dashboard/transport/busStopRoutes";
+import conductorRoutes from "./routes/dashboard/transport/conductorRoutes";
+import driverRoutes from "./routes/dashboard/transport/driverRoutes";
+import inchargeRoutes from "./routes/dashboard/transport/inchargeRoutes";
 
 dotenv.config();
 
@@ -76,8 +86,6 @@ app.use(compression({ threshold: 0 }));
 // Add the morgan middleware
 app.use(morganMiddleware);
 app.use(injectUserByToken);
-
-const server = new http.Server(app);
 
 app.get("/", (req, res) => {
   res.send("Backend is live");
@@ -165,6 +173,16 @@ app.use("/api/v1", createAuthorRoutes);
 app.use("/api/v1", disputeRoutes);
 app.use("/api/v1", fineManagmentRoutes);
 
+// transport
+
+app.use("/api/v1", assignTransportRoutes);
+app.use("/api/v1", busAttendenceRoutes);
+app.use("/api/v1", busrouteRoutes);
+app.use("/api/v1", busRoutes);
+app.use("/api/v1", busStopRoutes);
+app.use("/api/v1", conductorRoutes);
+app.use("/api/v1", driverRoutes);
+app.use("/api/v1", inchargeRoutes);
 
 process.on("uncaughtException", function (err) {
   Logger.error(`Error occured: ${getErrorStack(err)}`);
@@ -176,10 +194,27 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-try {
-  server.listen(PORT, (): void => {
-    Logger.info(`Connected successfully on port ${PORT}`);
+const httpServer = createServer(app);
+export const io = new Server(httpServer, {
+  cors: {
+    origin: "*", // Adjust for production
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
   });
-} catch (error) {
-  Logger.error(`Error occured: ${error}`);
-}
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+// try {
+//   server.listen(PORT, (): void => {
+//     Logger.info(`Connected successfully on port ${PORT}`);
+//   });
+// } catch (error) {
+//   Logger.error(`Error occured: ${error}`);
+// }

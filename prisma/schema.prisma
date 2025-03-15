@@ -33,6 +33,18 @@ model School {
   Ticket Ticket[]
 
   Feedback Feedback[]
+
+  BusStops BusStop[]
+
+  Routes Route[]
+
+  Incharges Incharge[]
+
+  Conductors Conductor[]
+
+  Drivers Driver[]
+
+  Buses Bus[]
 }
 
 model User {
@@ -371,6 +383,8 @@ model Attendance {
   student   Student  @relation(fields: [studentId], references: [id])
   lessonId  String
   lesson    Lesson   @relation(fields: [lessonId], references: [id])
+
+  Bus Bus[]
 }
 
 // <--------------------------------------------------------------------------- Student Models are defined here ------------------------------------------------------------------->
@@ -429,9 +443,16 @@ model Student {
 
   // Transport Details
 
-  route         String
-  vehicleNumber String
-  pickUpPoint   String
+  // route         String
+  // vehicleNumber String
+  // pickUpPoint   String
+
+  routeId   String?
+  route     Route?   @relation(fields: [routeId], references: [id])
+  busId     String?
+  bus       Bus?     @relation(fields: [busId], references: [id])
+  busStopId String?
+  busStop   BusStop? @relation(fields: [busStopId], references: [id])
 
   // Hostel Details
 
@@ -467,6 +488,14 @@ model Student {
   parent      Parent[]
   fees        Fee[]
   payments    Payment[]
+
+  BusAttendance BusAttendance[]
+
+  //  BusStop BusStop[]
+
+  // Route Route[]
+
+  // Bus Bus[]
 }
 
 // <------------------------------------------------------------- Parent Models are defined here ------------------------------------------------------------------->
@@ -633,6 +662,93 @@ model Transport {
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Bus {
+  id          String       @id @default(cuid())
+  busNumber   String       @unique
+  capacity    Int
+  schoolId    String
+  school      School       @relation(fields: [schoolId], references: [id])
+  routes      Route[]
+  drivers     Driver[]
+  conductors  Conductor[]
+  students    Student[]
+  attendances Attendance[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+
+  BusAttendance BusAttendance[]
+}
+
+model Driver {
+  id        String   @id @default(cuid())
+  name      String
+  license   String   @unique
+  busId     String
+  bus       Bus      @relation(fields: [busId], references: [id])
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Conductor {
+  id        String   @id @default(cuid())
+  name      String
+  busId     String
+  bus       Bus      @relation(fields: [busId], references: [id])
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Incharge {
+  id        String   @id @default(cuid())
+  name      String
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Route {
+  id        String    @id @default(cuid())
+  name      String
+  busId     String
+  bus       Bus       @relation(fields: [busId], references: [id])
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  busStops  BusStop[]
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model BusStop {
+  id        String    @id @default(cuid())
+  name      String
+  location  String
+  routeId   String
+  route     Route     @relation(fields: [routeId], references: [id])
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model BusAttendance {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  busId     String
+  bus       Bus      @relation(fields: [busId], references: [id])
+  date      DateTime @default(now())
+  status    String // "Boarded", "Alighted"
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
