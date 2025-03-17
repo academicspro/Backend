@@ -20,30 +20,30 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
       fatherName,
       maritalStatus,
       languagesKnown,
-      Qualification,
+      qualification,
       workExperience,
       previousSchool,
       previousSchoolAddress,
       previousSchoolPhone,
       address,
-      PanNumber,
+      panNumber,
       status,
       salary,
       contractType,
       dateOfPayment,
       medicalLeave,
       casualLeave,
-      MaternityLeave,
-      SickLeave,
+      maternityLeave,
+      sickLeave,
       bankName,
       accountNumber,
       ifscCode,
       branchName,
-      Route,
-      VehicleNumber,
-      PickUpPoint,
+      route,
+      vehicleNumber,
+      pickUpPoint,
       hostelName,
-      RoomNumber,
+      roomNumber,
       facebook,
       twitter,
       linkedin,
@@ -77,30 +77,30 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
       !fatherName ||
       !maritalStatus ||
       !languagesKnown ||
-      !Qualification ||
+      !qualification ||
       !workExperience ||
       !previousSchool ||
       !previousSchoolAddress ||
       !previousSchoolPhone ||
       !address ||
-      !PanNumber ||
+      !panNumber ||
       !status ||
       !salary ||
       !contractType ||
       !dateOfPayment ||
       !medicalLeave ||
       !casualLeave ||
-      !MaternityLeave ||
-      !SickLeave ||
+      !maternityLeave ||
+      !sickLeave ||
       !bankName ||
       !accountNumber ||
       !ifscCode ||
       !branchName ||
-      !Route ||
-      !VehicleNumber ||
-      !PickUpPoint ||
+      !route ||
+      !vehicleNumber ||
+      !pickUpPoint ||
       !hostelName ||
-      !RoomNumber ||
+      !roomNumber ||
       !facebook ||
       !twitter ||
       !linkedin ||
@@ -138,7 +138,7 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
     const tempPassword = randomBytes(6).toString("hex");
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    const user = await prisma.user.create({
+    const teacherUser = await prisma.user.create({
       data: {
         name,
         sex,
@@ -163,35 +163,36 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
 
     const teacher = await prisma.teacher.create({
       data: {
+        user: { connect: { id: teacherUser.id } },
         dateofJoin,
         fatherName,
         maritalStatus,
         languagesKnown,
-        Qualification,
+        qualification,
         workExperience,
         previousSchool,
         previousSchoolAddress,
         previousSchoolPhone,
         motherName,
         dateOfBirth,
-        PanNumber,
+        panNumber,
         status,
         salary: parseInt(salary),
         contractType,
         dateOfPayment,
         medicalLeave,
         casualLeave,
-        MaternityLeave,
-        SickLeave,
+        maternityLeave,
+        sickLeave,
         bankName,
         accountNumber,
         ifscCode,
         branchName,
-        Route,
-        VehicleNumber,
-        PickUpPoint,
+        route,
+        vehicleNumber,
+        pickUpPoint,
         hostelName,
-        RoomNumber,
+        roomNumber,
         facebook,
         twitter,
         linkedin,
@@ -208,7 +209,7 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
     });
 
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: teacherUser.id },
       data: { teacherId: teacher.id },
     });
 

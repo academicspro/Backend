@@ -14,10 +14,10 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
     const {
       email,
       phone,
-      AcademicYear,
-      AdmissionNo,
-      AdmissionDate,
-      RollNo,
+      academicYear,
+      admissionNo,
+      admissionDate,
+      rollNo,
       status,
       name,
       section,
@@ -29,7 +29,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       primaryContact,
       emailAddress,
       caste,
-      MotherTongue,
+      motherTongue,
       languagesKnown,
       fatherName,
       fatheremail,
@@ -61,7 +61,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       allergies,
       medicationName,
       schoolName,
-      Adress,
+
       schoolId,
       classId,
       address,
@@ -73,10 +73,10 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
 
     // Validate required fields
     if (
-      !AcademicYear ||
-      !AdmissionNo ||
-      !AdmissionDate ||
-      !RollNo ||
+      !academicYear ||
+      !admissionNo ||
+      !admissionDate ||
+      !rollNo ||
       !status ||
       !name ||
       !section ||
@@ -88,7 +88,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       !primaryContact ||
       !emailAddress ||
       !caste ||
-      !MotherTongue ||
+      !motherTongue ||
       !languagesKnown ||
       !fatherName ||
       !fatheremail ||
@@ -174,7 +174,6 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
         country,
         pincode,
         bloodType,
-
         password: hashedStudentPassword,
         role: "student",
         profilePic: profilePicUpload.url,
@@ -187,17 +186,18 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
     // Create the student record
     const student = await prisma.student.create({
       data: {
-        AcademicYear,
-        AdmissionNo,
-        AdmissionDate,
-        RollNo,
+        user: { connect: { id: studentUser.id } },
+        academicYear,
+        admissionNo,
+        admissionDate,
+        rollNo,
         status,
         section,
         dateOfBirth,
         Religion,
         category,
         caste,
-        MotherTongue,
+        motherTongue,
         languagesKnown,
         fatherName,
         fatheremail,
@@ -229,7 +229,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
         allergies,
         medicationName,
         schoolName,
-        Adress,
+        address,
         medicalCertificate: medicalCertificateUpload.url,
         transferCertificate: transferCertificateUpload.url,
         school: { connect: { id: schoolId } },
@@ -247,7 +247,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
         email: gardianEmail,
         role: "parent",
       },
-      include: { parents: true },
+      include: { parent: true },
     });
 
     let parent;
@@ -280,14 +280,7 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       // Create the parent record linked to the parent user
       parent = await prisma.parent.create({
         data: {
-          gardianName,
-          gardianRealtion,
-          gardianEmail,
-          gardianPhone,
-          gardianOccupation,
-          gardianAddress,
           role: "parent",
-          school: { connect: { id: schoolId } },
           user: { connect: { id: parentUser.id } },
           students: {
             connect: { id: student.id },
@@ -301,7 +294,12 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       // Parent already exists: update the parent's record to add the new student.
       // Here we assume a one-to-one relationship between a parent user and a parent record.
       // Adjust if a parent can have multiple parent records.
-      const existingParentRecord = existingParentUser.parents[0];
+      const existingParentRecord =
+        existingParentUser.parent && Array.isArray(existingParentUser.parent) ? existingParentUser.parent[0] : null;
+      if (!existingParentRecord) {
+        res.status(404).json({ error: "Parent record not found." });
+        return;
+      }
       parent = await prisma.parent.update({
         where: { id: existingParentRecord.id },
         data: {
@@ -316,7 +314,6 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       await sendNotificationEmail(gardianEmail, `A new child has been registered under your account.`);
     }
 
-    // Optionally update the student user's record to store a reference to the student.
     await prisma.user.update({
       where: { id: studentUser.id },
       data: { studentId: student.id },

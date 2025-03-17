@@ -431,13 +431,13 @@ model Teacher {
   dateOfPayment         DateTime      @map("date_of_payment")
   medicalLeave          String        @map("medical_leave")
   casualLeave           String        @map("casual_leave")
-  MaternityLeave        String        @map("maternity_leave")
-  SickLeave             String        @map("sick_leave")
+  maternityLeave        String        @map("maternity_leave")
+  sickLeave             String        @map("sick_leave")
   accountNumber         String        @map("account_number")
   bankName              String        @map("bank_name")
   ifscCode              String        @map("ifsc_code")
   branchName            String        @map("branch_name")
-  Route                 String?       @map("route")
+  route                 String?       @map("route")
   vehicleNumber         String?       @map("vehicle_number")
   pickUpPoint           String?       @map("pick_up_point")
   hostelName            String?       @map("hostel_name")
@@ -566,8 +566,8 @@ model Student {
   section        String
   dateOfBirth    DateTime @map("date_of_birth")
   Religion       String?  @map("religion")
-  Category       String?  @map("category")
-  Caste          String?  @map("caste")
+  category       String?  @map("category")
+  caste          String?  @map("caste")
   motherTongue   String?  @map("mother_tongue")
   languagesKnown String   @map("languages_known")
 
@@ -617,7 +617,7 @@ model Student {
   medicationName String @map("medication_name")
 
   schoolName           String?                @map("school_name")
-  Address              String?                @map("address")
+  address              String?                @map("address")
   schoolId             String                 @map("school_id")
   userId               String                 @unique @map("user_id")
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -834,6 +834,7 @@ model BookIssue {
   returnDate DateTime? @map("return_date")
 
   fine     Fine?     @relation(name: "BookIssueToFine")
+  finePaid Boolean   @default(false) @map("fine_paid")
   bookCopy BookCopy  @relation(fields: [bookCopyId], references: [id])
   user     User      @relation(fields: [userId], references: [id])
   disputes Dispute[]

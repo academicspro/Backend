@@ -10,13 +10,13 @@ import { handlePrismaError } from "../../utils/prismaErrorHandler";
 
 export const registerSchool = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, phone, address, city, state, country, pincode, bloodType, sex, SchoolName } = req.body;
+    const { name, email, phone, address, city, state, country, pincode, bloodType, sex, schoolName } = req.body;
 
     const profilePicFile = req.file;
 
     console.log("logging Request body:", req.body, req.files);
 
-    if (!name || !phone || !email || !address || !city || !state || !country || !pincode) {
+    if (!name || !phone || !email || !address || !city || !state || !country || !pincode || !schoolName) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
@@ -55,7 +55,7 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
 
     const school = await prisma.school.create({
       data: {
-        SchoolName,
+        schoolName,
         user: {
           connect: {
             id: user.id,
@@ -75,10 +75,10 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
 };
 
 // Update a school
-export const updateSchool = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
+export const updateSchool = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { id } = req.params;
-    const { SchoolName, name, phone, address, city, state, country, pincode } = req.body;
+    const { schoolName, name, phone, address, city, state, country, pincode } = req.body;
     const profilePicFile = req.file;
 
     // Check if school exists
@@ -108,7 +108,7 @@ export const updateSchool = async (req: Request, res: Response, next: NextFuncti
     // Update School
     const updatedSchool = await prisma.school.update({
       where: { id },
-      data: { SchoolName },
+      data: { schoolName },
     });
 
     res.status(200).json({ message: "School updated successfully", school: updatedSchool });
@@ -118,7 +118,7 @@ export const updateSchool = async (req: Request, res: Response, next: NextFuncti
 };
 
 // Delete a school
-export const deleteSchool = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
+export const deleteSchool = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { id } = req.params;
 

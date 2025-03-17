@@ -7,9 +7,9 @@ import { handlePrismaError } from "../../utils/prismaErrorHandler";
 
 export const createTodo = async (req: Request, res: Response,next: NextFunction) => {
     try {
-      const { title, description, status, userId } = req.body;
+      const { title, description, status, userId , schoolId} = req.body;
       const todo = await prisma.todo.create({
-        data: { title, description, status, userId },
+        data: { title, description, status, userId , schoolId},
       });
       res.status(201).json(todo);
     } catch (error) {

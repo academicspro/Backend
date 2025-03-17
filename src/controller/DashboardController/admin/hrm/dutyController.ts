@@ -25,7 +25,7 @@ export const getDutyById = async (req: Request, res: Response, next: NextFunctio
       include: {
         user: { select: { id: true, name: true } }, // Corrected relation
         hostel: { select: { id: true, hostelName: true } }, // Including hostel details
-        school: { select: { id: true, SchoolName: true } }, // Including school details
+        school: { select: { id: true, schoolName: true } }, // Including school details
       },
     });
 

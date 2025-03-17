@@ -13,15 +13,14 @@ export const registerLibrary = async (req: Request, res: Response, next: NextFun
     const {
       name,
       email,
-      hostelName,
-      capacity,
+   
       phone,
       address,
       city,
       state,
       country,
       pincode,
-      password,
+    
       schoolId,
       sex,
       bloodType,
