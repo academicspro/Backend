@@ -10,10 +10,10 @@ datasource db {
 // <------------------------------------------------ Super Admin Models are defined here -------------------------------------------------------------->
 
 model School {
-  id        String   @id @default(cuid())
-  // SchoolName String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id         String   @id @default(cuid())
+  SchoolName String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
   userId String @unique
 
@@ -45,6 +45,14 @@ model School {
   Drivers Driver[]
 
   Buses Bus[]
+
+  SalaryPayment  SalaryPayment[]
+  departments    Department[]
+  designations   Designation[]
+  duties         Duty[]
+  payrolls       Payroll[]
+  inventoryItems InventoryItem[]
+  visitors  Visitor[]  // Added relation to Visitor model
 }
 
 model User {
@@ -105,6 +113,18 @@ model User {
   bookIssues      BookIssue[] // Users who borrow books
   disputes        Dispute[] // Users raising disputes
   disputeMessages DisputeMessage[] // Users participating in dispute conversations
+
+  // Duty Duty[]
+
+  // HRM fields
+  employeeType          EmployeeType?
+  departmentId          String?
+  department            Department?            @relation(fields: [departmentId], references: [id])
+  designationId         String?
+  designation           Designation?           @relation(fields: [designationId], references: [id])
+  duties                Duty[]
+  payrolls              Payroll[]
+  inventoryTransactions InventoryTransaction[]
 }
 
 model PasswordResetToken {
@@ -149,14 +169,30 @@ model Payment {
   feeId             String
   fee               Fee      @relation(fields: [feeId], references: [id])
   amount            Float
-  razorpayOrderId   String   @unique
+  razorpayOrderId   String ? @unique
   razorpayPaymentId String?
+  method            String? // Cash , Online
   status            String   @default("Pending") // Pending , PAID, Failed
   paymentDate       DateTime
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
 
   Student Student[]
+}
+
+model SalaryPayment {
+  id          String   @id @default(cuid())
+  teacherId   String
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  amount      Int
+  period      String // e.g., "2023-09"
+  paymentDate DateTime
+  method      String // Cash, Bank Transfer
+  status      String // Success, Failed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 model Notification {
@@ -218,15 +254,18 @@ model Fee {
   id         String    @id @default(cuid())
   studentId  String
   student    Student   @relation(fields: [studentId], references: [id])
+  schoolId   String
+  school     School    @relation(fields: [schoolId], references: [id])
   amount     Float
   dueDate    DateTime
+  category   String
   finePerDay Float     @default(0)
   status     String    @default("Pending") // Pending , Partial, PAID , Overdue
   Payment    Payment[]
+  paymentDate DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
 
-  School School[]
 }
 
 model Event {
@@ -246,6 +285,22 @@ model Announcement {
   date        DateTime
   classId     String?
   class       Class?   @relation(fields: [classId], references: [id])
+}
+model Visitor {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  email       String?
+  purpose     String
+  token       String   @unique  // Unique token for QR code
+  validFrom   DateTime         // Start of validity period
+  validUntil  DateTime         // End of validity period
+  entryTime   DateTime?        // Time of entry
+  exitTime    DateTime?        // Time of exit
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 // <---------------------------------------------------------------- Teacher Models are defined here ------------------------------------------------------------------->
@@ -297,6 +352,8 @@ model Teacher {
   subjects              Subject[]
   lessons               Lesson[]
   classes               Class[]
+
+  SalaryPayment SalaryPayment[]
 }
 
 model Grade {
@@ -444,8 +501,8 @@ model Student {
   // Transport Details
 
   // route         String
-  // vehicleNumber String
-  // pickUpPoint   String
+  vehicleNumber String
+  pickUpPoint   String
 
   routeId   String?
   route     Route?   @relation(fields: [routeId], references: [id])
@@ -496,6 +553,18 @@ model Student {
   // Route Route[]
 
   // Bus Bus[]
+
+  Complaint Complaint[]
+
+  Room Room[]
+
+  AccommodationRequest AccommodationRequest[]
+
+  HostelFee HostelFee[]
+
+  MedicalEmergency MedicalEmergency[]
+
+  OutpassRequest OutpassRequest[]
 }
 
 // <------------------------------------------------------------- Parent Models are defined here ------------------------------------------------------------------->
@@ -645,13 +714,143 @@ model DisputeMessage {
 // <------------------------------------------------------------- Hostel Models are defined here ------------------------------------------------------------------->
 
 model Hostel {
-  id        String   @id @default(cuid())
-  schoolId  String
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
-  school    School   @relation(fields: [schoolId], references: [id])
+  id         String  @id @default(cuid())
+  hostelName String?
+  location   String?
+  capacity   Int
+
+  schoolId String
+  school   School  @relation(fields: [schoolId], references: [id])
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id])
+
+  rooms     Room[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  Complaint Complaint[]
+
+  Duty Duty[]
+
+  HostelExpense HostelExpense[]
+
+  AccommodationRequest AccommodationRequest[]
+
+  HostelFee HostelFee[]
+
+  MedicalEmergency MedicalEmergency[]
+}
+
+model Room {
+  id          String      @id @default(cuid())
+  number      String
+  type        RoomType
+  status      RoomStatus  @default(VACANT)
+  hostelId    String
+  hostel      Hostel      @relation(fields: [hostelId], references: [id])
+  students    Student[]
+  inventories Inventory[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  name      String
+  quantity  Int
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model AccommodationRequest {
+  id        String        @id @default(cuid())
+  studentId String
+  student   Student       @relation(fields: [studentId], references: [id])
+  hostelId  String
+  hostel    Hostel        @relation(fields: [hostelId], references: [id])
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
+}
+
+model HostelFee {
+  id        String    @id @default(cuid())
+  amount    Float
+  dueDate   DateTime
+  studentId String
+  student   Student   @relation(fields: [studentId], references: [id])
+  hostelId  String
+  hostel    Hostel    @relation(fields: [hostelId], references: [id])
+  status    FeeStatus @default(UNPAID)
+  type      FeeType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model MedicalEmergency {
+  id          String   @id @default(cuid())
+  description String
+  date        DateTime
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id])
+  hostelId    String
+  hostel      Hostel   @relation(fields: [hostelId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model OutpassRequest {
+  id        String        @id @default(cuid())
+  studentId String
+  student   Student       @relation(fields: [studentId], references: [id])
+  reason    String
+  fromDate  DateTime
+  toDate    DateTime
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
+}
+
+model HostelExpense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  date        DateTime
+  hostelId    String
+  hostel      Hostel   @relation(fields: [hostelId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Duty {
+  id          String @id @default(cuid())
+  description String
+  assignedTo  String
+  user        User   @relation(fields: [assignedTo], references: [id])
+  hostelId    String
+  hostel      Hostel @relation(fields: [hostelId], references: [id])
+
+  name String
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Complaint {
+  id          String          @id @default(cuid())
+  description String
+  studentId   String
+  student     Student         @relation(fields: [studentId], references: [id])
+  hostelId    String
+  hostel      Hostel          @relation(fields: [hostelId], references: [id])
+  status      ComplaintStatus @default(OPEN)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
 }
 
 // <------------------------------------------------------------- Transport Models are defined here ------------------------------------------------------------------->
@@ -822,6 +1021,59 @@ enum DisputeStatus {
   DISMISSED
 }
 
+enum RoomType {
+  SINGLE
+  DOUBLE
+  TRIPLE
+}
+
+enum RoomStatus {
+  OCCUPIED
+  VACANT
+  MAINTENANCE
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum FeeStatus {
+  PAID
+  UNPAID
+  OVERDUE
+}
+
+enum FeeType {
+  REGULAR
+  FINE
+}
+
+enum ComplaintStatus {
+  OPEN
+  CLOSED
+}
+
+enum EmployeeType {
+  TEACHER
+  LIBRARIAN
+  ADMINISTRATOR
+  SUPPORT
+}
+
+enum PayrollStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum TransactionType {
+  ADD
+  REMOVE
+  TRANSFER
+}
+
 model Doubt {
   id        String   @id @default(cuid())
   title     String
@@ -927,6 +1179,73 @@ model Transaction {
   amountPaid Float
   status     String   @default("PENDING") // PENDING, COMPLETED, REJECTED
   createdAt  DateTime @default(now())
+}
+
+// ***********************************************HRM Models************************************************
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Designation {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Payroll {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  schoolId    String
+  school      School        @relation(fields: [schoolId], references: [id])
+  periodStart DateTime
+  periodEnd   DateTime
+  grossSalary Float
+  deductions  Float         @default(0)
+  netSalary   Float
+  paymentDate DateTime?
+  status      PayrollStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+}
+
+// Inventory Models
+model InventoryItem {
+  id           String                 @id @default(cuid())
+  name         String
+  description  String?
+  quantity     Int
+  schoolId     String
+  school       School                 @relation(fields: [schoolId], references: [id])
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @default(now()) @updatedAt
+  transactions InventoryTransaction[]
+}
+
+model InventoryTransaction {
+  id              String          @id @default(cuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem   @relation(fields: [inventoryItemId], references: [id])
+  type            TransactionType
+  quantity        Int
+  date            DateTime        @default(now())
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
 }
 
 // goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 

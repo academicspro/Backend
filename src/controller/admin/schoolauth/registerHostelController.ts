@@ -12,6 +12,8 @@ export const registerhostel = async (req: Request, res: Response) => {
     const {
       name,
       email,
+      hostelName,
+      capacity,
       phone,
       address,
       city,
@@ -86,6 +88,9 @@ export const registerhostel = async (req: Request, res: Response) => {
 
     const hostel = await prisma.hostel.create({
       data: {
+        hostelName,
+        capacity,
+
         user: {
           connect: { id: user.id },
         },
