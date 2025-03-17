@@ -4,7 +4,7 @@ import { prisma } from "../../../db/prisma";
 // create lesson
 export const createLesson = async (req: Request, res: Response) => {
   try {
-    let { name, day, startTime, endTime, subjectId, classId, teacherId } = req.body;
+    const { name, day, startTime, endTime, subjectId, classId, teacherId } = req.body;
 
     if (!name || !day || !startTime || !endTime || !subjectId || !classId || !teacherId) {
       res.status(400).json({ error: "All fields are required" });

@@ -4,27 +4,78 @@ import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { sendRegistrationEmail } from "../../../config/email";
 import { handlePrismaError } from "../../../utils/prismaErrorHandler";
+import { uploadFile } from "../../../config/upload";
 
 // Create Library User
 
 export const registerLibrary = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, phone, schoolId } = req.body;
-    if (!name || !email || !phone || !schoolId) {
-      res.status(400).json({ error: "Please provide all the required fields." });
+    const {
+      name,
+      email,
+      hostelName,
+      capacity,
+      phone,
+      address,
+      city,
+      state,
+      country,
+      pincode,
+      password,
+      schoolId,
+      sex,
+      bloodType,
+    } = req.body;
+    const profilePicFile = req.file;
+    if (
+      !name ||
+      !email ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !country ||
+      !pincode ||
+      !schoolId ||
+      !sex ||
+      !bloodType
+    ) {
+      res.status(400).json({ error: "All fields are required." });
       return;
     }
+
+       // Check if file is uploaded
+          if (!profilePicFile || !profilePicFile.buffer) {
+            res.status(400).json({ error: "Profile picture is required." });
+            return;
+          }
+      
+          // Upload profile picture to Cloudinary
+          const { publicId, url } = await uploadFile(
+            profilePicFile.buffer,
+            "profile_pics",
+            "image"
+          );
+      
 
     const tempPassword = randomBytes(6).toString("hex");
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
     const user = await prisma.user.create({
       data: {
-        name,
+       name,
         email,
         phone,
+        address,
+        city,
+        state,
+        country,
+        pincode,
+        sex,
+        bloodType,
+        profilePic: url,
         password: hashedPassword,
-        role: "library",
+        role: "hostel",
         school: {
           connect: { id: schoolId },
         },
@@ -33,6 +84,7 @@ export const registerLibrary = async (req: Request, res: Response, next: NextFun
 
     const library = await prisma.library.create({
       data: {
+        
         school: {
           connect: { id: schoolId },
         },

@@ -95,7 +95,7 @@ export const registertransport = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ message: "transport created successfully", user });
+    res.status(200).json({ message: "transport created successfully", user, transport });
   } catch (error) {
     console.error("Error creating transport:", error);
     res.status(500).json({ error: "Something went wrong. Please try again." });

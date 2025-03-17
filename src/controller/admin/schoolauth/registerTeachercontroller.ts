@@ -8,7 +8,7 @@ import { handlePrismaError } from "../../../utils/prismaErrorHandler";
 
 // Register  teacher
 
-export const registerteacher = async (req: Request, res: Response, next:NextFunction) => {
+export const registerteacher = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       name,
@@ -50,6 +50,12 @@ export const registerteacher = async (req: Request, res: Response, next:NextFunc
       instagram,
       youtube,
       schoolId,
+      city,
+      state,
+      country,
+      pincode,
+      motherName,
+      dateOfBirth,
     } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     console.log("Logging Requested File", req.files);
@@ -58,12 +64,7 @@ export const registerteacher = async (req: Request, res: Response, next:NextFunc
     const profilePicFile = files?.profilePic?.[0];
     const ResumeFile = files?.Resume?.[0];
     const joiningLetterFile = files?.joiningLetter?.[0];
-    console.log(
-      "Logging Requested File",
-      profilePicFile,
-      ResumeFile,
-      joiningLetterFile
-    );
+    console.log("Logging Requested File", profilePicFile, ResumeFile, joiningLetterFile);
 
     // Validate required fields
     if (
@@ -125,40 +126,40 @@ export const registerteacher = async (req: Request, res: Response, next:NextFunc
       return;
     }
 
+    // // Upload files to Cloudinary in parallel
+    const [profilePicUpload, resumeUpload, joiningLetterUpload] = await Promise.all([
+      uploadFile(profilePicFile.buffer, "profile_pics", "image"),
+      uploadFile(ResumeFile.buffer, "resumes", "raw"),
+      uploadFile(joiningLetterFile.buffer, "joining_letters", "raw"),
+    ]);
 
-
-// // Upload files to Cloudinary in parallel
-const [profilePicUpload, resumeUpload, joiningLetterUpload] = await Promise.all([
-  uploadFile(profilePicFile.buffer, "profile_pics", "image"),
-  uploadFile(ResumeFile.buffer, "resumes", "raw"),
-  uploadFile(joiningLetterFile.buffer, "joining_letters", "raw")
-]);
-
-// console.log("Logging uploaded files:", profilePicUpload, resumeUpload, joiningLetterUpload);
-
+    // console.log("Logging uploaded files:", profilePicUpload, resumeUpload, joiningLetterUpload);
 
     const tempPassword = randomBytes(6).toString("hex");
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-
-
     const user = await prisma.user.create({
-      data:{
+      data: {
         name,
         sex,
         email,
         phone,
         bloodType,
         address,
+
+        city,
+        state,
+        country,
+        pincode,
+
         role: "teacher",
         profilePic: profilePicUpload.url,
         password: hashedPassword,
         school: {
           connect: { id: schoolId },
         },
-
-      }
-    })
+      },
+    });
 
     const teacher = await prisma.teacher.create({
       data: {
@@ -171,6 +172,8 @@ const [profilePicUpload, resumeUpload, joiningLetterUpload] = await Promise.all(
         previousSchool,
         previousSchoolAddress,
         previousSchoolPhone,
+        motherName,
+        dateOfBirth,
         PanNumber,
         status,
         salary: parseInt(salary),
@@ -194,25 +197,24 @@ const [profilePicUpload, resumeUpload, joiningLetterUpload] = await Promise.all(
         linkedin,
         instagram,
         youtube,
-       
+
         Resume: resumeUpload.url,
         joiningLetter: resumeUpload.url,
-       
+
         school: {
           connect: { id: schoolId },
         },
-
       },
     });
-    
+
     await prisma.user.update({
       where: { id: user.id },
-      data: { teacherId: teacher.id  },
+      data: { teacherId: teacher.id },
     });
 
     // Send registration email
     await sendRegistrationEmail(email, tempPassword);
- 
+
     res.status(200).json({ message: "teacher created successfully", teacher });
   } catch (error) {
     next(handlePrismaError(error));
@@ -263,8 +265,7 @@ export const getteacherById = async (req: Request, res: Response) => {
 export const updateteacher = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, address, city, state, country, pincode } =
-      req.body;
+    const { name, email, phone, address, city, state, country, pincode } = req.body;
 
     const teacher = await prisma.teacher.findUnique({
       where: { id },

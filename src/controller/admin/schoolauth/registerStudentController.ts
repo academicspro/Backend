@@ -1,4 +1,4 @@
-import { Request, Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../db/prisma";
 import { uploadFile } from "../../../config/upload";
@@ -9,280 +9,7 @@ import { ApiError } from "../../../utils/apiError";
 
 // Register  student
 
-// export const registerstudent = async (req: Request, res: Response) => {
-//   try {
-//     const {
-//       email,
-//       phone,
-//       AcademicYear,
-//       AdmissionNo,
-//       AdmissionDate,
-//       RollNo,
-//       status,
-//       name,
-//       section,
-//       sex,
-//       dateOfBirth,
-//       bloodType,
-//       Religion,
-//       category,
-//       primaryContact,
-//       emailAddress,
-//       caste,
-//       MotherTongue,
-//       languagesKnown,
-//       fatherName,
-//       fatheremail,
-//       fatherPhone,
-//       fatherOccupation,
-//       motherName,
-//       motherOccupation,
-//       motherEmail,
-//       motherPhone,
-//       gardianName,
-//       gardianRealtion,
-//       gardianEmail,
-//       gardianPhone,
-//       gardianOccupation,
-//       gardianAddress,
-//       areSiblingStudying,
-//       siblingName,
-//       siblingClass,
-//       siblingRollNo,
-//       sibllingAdmissionNo,
-//       currentAddress,
-//       permanentAddress,
-//       route,
-//       vehicleNumber,
-//       pickUpPoint,
-//       hostelName,
-//       roomNumber,
-//       medicaConditon,
-//       allergies,
-//       medicationName,
-//       schoolName,
-//       Adress,
-//       schoolId,
-//       classId,
-//     } = req.body;
-
-//     console.log(req.body);
-
-//     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-//     // console.log("Logging Requested File", req.files);
-
-//     // Extract multiple files correctly
-//     const profilePicFile = files?.profilePic?.[0];
-//     const medicalCertificate = files?.medicalCertificate?.[0];
-//     const transferCertificate = files?.transferCertificate?.[0];
-//     console.log(
-//       "Logging Requested File",
-//       profilePicFile,
-//       medicalCertificate,
-//       transferCertificate
-//     );
-
-//     if (
-//       !AcademicYear ||
-//       !AdmissionNo ||
-//       !AdmissionDate ||
-//       !RollNo ||
-//       !status ||
-//       !name ||
-//       !section ||
-//       !sex ||
-//       !dateOfBirth ||
-//       !bloodType ||
-//       !Religion ||
-//       !category ||
-//       !primaryContact ||
-//       !emailAddress ||
-//       !caste ||
-//       !MotherTongue ||
-//       !languagesKnown ||
-//       !fatherName ||
-//       !fatheremail ||
-//       !fatherPhone ||
-//       !fatherOccupation ||
-//       !motherName ||
-//       !motherOccupation ||
-//       !motherEmail ||
-//       !motherPhone ||
-//       !gardianName ||
-//       !gardianRealtion ||
-//       !gardianEmail ||
-//       !gardianPhone ||
-//       !gardianOccupation ||
-//       !gardianAddress ||
-//       !areSiblingStudying ||
-//       !siblingName ||
-//       !siblingClass ||
-//       !siblingRollNo ||
-//       !sibllingAdmissionNo ||
-//       !currentAddress ||
-//       !permanentAddress ||
-//       !route ||
-//       !vehicleNumber ||
-//       !pickUpPoint ||
-//       !hostelName ||
-//       !roomNumber ||
-//       !medicaConditon ||
-//       !allergies ||
-//       !medicationName ||
-//       !schoolId ||
-//       !classId
-//     ) {
-//       res.status(400).json({ error: "All fields are required." });
-//       return;
-//     }
-
-    
-//     // Validate file uploads
-//     if (!profilePicFile) {
-//       res.status(400).json({ error: "Profile picture is required." });
-//       return;
-//     }
-//     if (!medicalCertificate) {
-//       res.status(400).json({ error: "Medical is required." });
-//       return;
-//     }
-//     if (!transferCertificate) {
-//       res.status(400).json({ error: "Transfer letter is required." });
-//       return;
-//     }
-
-//     // Upload files to Cloudinary in parallel
-//     const [
-//       profilePicUpload,
-//       medicalCertificateUpload,
-//       transferCertificateUpload,
-//     ] = await Promise.all([
-//       uploadFile(profilePicFile.buffer, "profile_pics", "image"),
-//       uploadFile(medicalCertificate.buffer, "medical_certificate", "raw"),
-//       uploadFile(transferCertificate.buffer, "transfer_letters", "raw"),
-//     ]);
-//     console.log(profilePicFile, medicalCertificate, transferCertificate);
-
-//     // const profilePicUpload = await
-//     // uploadFile2(profilePicFile.buffer, "profile_pics","image");
-
-//     const tempPassword = randomBytes(6).toString("hex");
-//     const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
-//     const user = await prisma.user.create({
-//       data: {
-//         name,
-//         sex,
-//         email,
-//         phone,
-//         password: hashedPassword,
-//         role: "student",
-//         profilePic: profilePicUpload.url,
-//         school: {
-//           connect: { id: schoolId },
-//         },
-//       },
-//     });
-
-//     const student = await prisma.student.create({
-//       data: {
-//         AcademicYear,
-//         AdmissionNo,
-//         AdmissionDate,
-//         RollNo,
-//         status,
-//         section,
-//         dateOfBirth,
-//         Religion,
-//         category,
-//         caste,
-//         MotherTongue,
-//         languagesKnown,
-//         fatherName,
-//         fatheremail,
-//         fatherPhone,
-//         fatherOccupation,
-//         motherName,
-//         motherOccupation,
-//         motherEmail,
-//         motherPhone,
-//         gardianName,
-//         gardianRealtion,
-//         gardianEmail,
-//         gardianPhone,
-//         gardianOccupation,
-//         gardianAddress,
-//         areSiblingStudying,
-//         siblingName,
-//         siblingClass,
-//         siblingRollNo,
-//         sibllingAdmissionNo,
-//         currentAddress,
-//         permanentAddress,
-//         route,
-//         vehicleNumber,
-//         pickUpPoint,
-//         hostelName,
-//         roomNumber,
-//         medicaConditon,
-//         allergies,
-//         medicationName,
-//         schoolName,
-//         Adress,
-
-//         medicalCertificate: medicalCertificateUpload.url,
-//         transferCertificate: transferCertificateUpload.url,
-
-//         school: {
-//           connect: { id: schoolId },
-//         },
-//         class: {
-//           connect: { id: classId },
-//         },
-//       },
-//     });
-
-//     // Send registration email
-//     await sendRegistrationEmail(email, tempPassword);
-
-//     res
-//       .status(200)
-//       .json({ message: "student created successfully", user, student });
-
-
-  
-//     const parent = await prisma.parent.create({
-//       data: {
-//         gardianName: name,
-//          gardianEmail: email,
-//          gardianPhone :phone,
-//          gardianOccupation,
-//          gardianAddress,
-//          gardianRealtion,
-//          school:{
-//           connect: { id: schoolId },
-//          },
-//         role: "parent",
-//       },
-//     })
-
-//     await prisma.user.update({
-//       where: { id: user.id },
-//       data: { studentId: student.id },
-//     });
-
-//     await sendRegistrationEmail(email, tempPassword);
-
-//     res.status(200).json({ message: "parent created successfully", parent });
-//   } catch (error: any) {
-//     console.error("Error creating student:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-
-
-export const registerstudent = async (req: Request, res: Response, next:NextFunction) => {
+export const registerstudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       email,
@@ -337,21 +64,68 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
       Adress,
       schoolId,
       classId,
+      address,
+      city,
+      state,
+      country,
+      pincode,
     } = req.body;
 
     // Validate required fields
     if (
-      !AcademicYear || !AdmissionNo || !AdmissionDate || !RollNo || !status || !name ||
-      !section || !sex || !dateOfBirth || !bloodType || !Religion || !category ||
-      !primaryContact || !emailAddress || !caste || !MotherTongue || !languagesKnown ||
-      !fatherName || !fatheremail || !fatherPhone || !fatherOccupation ||
-      !motherName || !motherOccupation || !motherEmail || !motherPhone ||
-      !gardianName || !gardianRealtion || !gardianEmail || !gardianPhone ||
-      !gardianOccupation || !gardianAddress || !areSiblingStudying ||
-      !siblingName || !siblingClass || !siblingRollNo || !sibllingAdmissionNo ||
-      !currentAddress || !permanentAddress || !route || !vehicleNumber || !pickUpPoint ||
-      !hostelName || !roomNumber || !medicaConditon || !allergies ||
-      !medicationName || !schoolId || !classId
+      !AcademicYear ||
+      !AdmissionNo ||
+      !AdmissionDate ||
+      !RollNo ||
+      !status ||
+      !name ||
+      !section ||
+      !sex ||
+      !dateOfBirth ||
+      !bloodType ||
+      !Religion ||
+      !category ||
+      !primaryContact ||
+      !emailAddress ||
+      !caste ||
+      !MotherTongue ||
+      !languagesKnown ||
+      !fatherName ||
+      !fatheremail ||
+      !fatherPhone ||
+      !fatherOccupation ||
+      !motherName ||
+      !motherOccupation ||
+      !motherEmail ||
+      !motherPhone ||
+      !gardianName ||
+      !gardianRealtion ||
+      !gardianEmail ||
+      !gardianPhone ||
+      !gardianOccupation ||
+      !gardianAddress ||
+      !areSiblingStudying ||
+      !siblingName ||
+      !siblingClass ||
+      !siblingRollNo ||
+      !sibllingAdmissionNo ||
+      !currentAddress ||
+      !permanentAddress ||
+      !route ||
+      !vehicleNumber ||
+      !pickUpPoint ||
+      !hostelName ||
+      !roomNumber ||
+      !medicaConditon ||
+      !allergies ||
+      !medicationName ||
+      !schoolId ||
+      !classId ||
+      !address ||
+      !city ||
+      !state ||
+      !country ||
+      !pincode
     ) {
       res.status(400).json({ error: "All fields are required." });
       return;
@@ -378,11 +152,7 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
     }
 
     // Upload files to Cloudinary in parallel
-    const [
-      profilePicUpload,
-      medicalCertificateUpload,
-      transferCertificateUpload,
-    ] = await Promise.all([
+    const [profilePicUpload, medicalCertificateUpload, transferCertificateUpload] = await Promise.all([
       uploadFile(profilePicFile.buffer, "profile_pics", "image"),
       uploadFile(medicalCertificate.buffer, "medical_certificate", "raw"),
       uploadFile(transferCertificate.buffer, "transfer_letters", "raw"),
@@ -398,6 +168,13 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
         sex,
         email,
         phone,
+        address,
+        city,
+        state,
+        country,
+        pincode,
+        bloodType,
+
         password: hashedStudentPassword,
         role: "student",
         profilePic: profilePicUpload.url,
@@ -484,6 +261,16 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
           name: gardianName,
           email: gardianEmail,
           phone: gardianPhone,
+
+          sex,
+
+          address,
+          city,
+          state,
+          country,
+          pincode,
+          bloodType,
+
           password: hashedParentPassword,
           role: "parent",
           school: { connect: { id: schoolId } },
@@ -526,10 +313,7 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
       });
 
       // Send a notification email informing that a new child has been added to the account.
-      await sendNotificationEmail(
-        gardianEmail,
-        `A new child has been registered under your account.`
-      );
+      await sendNotificationEmail(gardianEmail, `A new child has been registered under your account.`);
     }
 
     // Optionally update the student user's record to store a reference to the student.
@@ -548,13 +332,6 @@ export const registerstudent = async (req: Request, res: Response, next:NextFunc
     next(handlePrismaError(error));
   }
 };
-
-
-
-
-
-
-
 
 // Get all  students
 
@@ -600,8 +377,7 @@ export const getstudentById = async (req: Request, res: Response) => {
 export const updatestudent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, address, city, state, country, pincode } =
-      req.body;
+    const { name, email, phone, address, city, state, country, pincode } = req.body;
 
     const student = await prisma.user.findUnique({
       where: { id },
@@ -665,4 +441,3 @@ function sendNotificationEmail(gardianEmail: any, arg1: string) {
 function next(arg0: ApiError) {
   throw new Error("Function not implemented.");
 }
-

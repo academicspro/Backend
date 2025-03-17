@@ -1,6 +1,6 @@
 import express from "express";
 
-// Import all route modules
+
 import schoolRoute from "./superadmin/schoolRoute";
 import superAdminRoute from "./superadmin/superAdminRoute";
 import signinRoute from "./signin/signinRoute";
@@ -69,6 +69,8 @@ import payrollRoutes from "./dashboard/admin/hrm/payrollRoutes";
 // Create a main API router
 const apiRouter = express.Router();
 
+
+
 // Mount all routes on the apiRouter
 apiRouter.use(schoolRoute);
 apiRouter.use(superAdminRoute);
@@ -135,5 +137,4 @@ apiRouter.use(designationsRoutes);
 apiRouter.use(dutiesRoutes);
 apiRouter.use(payrollRoutes);
 
-// Export the apiRouter
 export default apiRouter;

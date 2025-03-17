@@ -10,7 +10,7 @@ import { handlePrismaError } from "../../utils/prismaErrorHandler";
 
 export const registerSchool = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, phone, address, city, state, country, pincode } = req.body;
+    const { name, email, phone, address, city, state, country, pincode, bloodType, sex, SchoolName } = req.body;
 
     const profilePicFile = req.file;
 
@@ -41,6 +41,8 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
         state,
         country,
         pincode,
+        bloodType,
+        sex,
         password: hashedPassword,
         profilePic: profilePicUpload.url,
         role: "admin",
@@ -53,6 +55,7 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
 
     const school = await prisma.school.create({
       data: {
+        SchoolName,
         user: {
           connect: {
             id: user.id,
@@ -71,41 +74,77 @@ export const registerSchool = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// // Upadete a school
+// Update a school
+export const updateSchool = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { SchoolName, name, phone, address, city, state, country, pincode } = req.body;
+    const profilePicFile = req.file;
 
-// export const updateSchool = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const { name, phone, address, city, state, country, pincode } = req.body;
+    // Check if school exists
+    const school = await prisma.school.findUnique({
+      where: { id },
+      include: { user: true },
+    });
 
-//     const school = await prisma.school.update({
-//       where: { id },
-//       data: { name, phone, address, city, state, country, pincode },
-//     });
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
 
-//     console.log(school);
-//     res.status(200).json({ message: "School updated successfully", school });
-//   } catch (error) {
-//     console.error("Error updating school:", error);
-//     res.status(500).json({ message: "Internal server error", error });
-//   }
-// };
+    let profilePicUrl = school.user.profilePic;
 
-// // // Delete a school
+    // If a new profile picture is uploaded, replace it
+    if (profilePicFile) {
+      const profilePicUpload = await uploadFile(profilePicFile.buffer, "profile_pics", "image");
+      profilePicUrl = profilePicUpload.url;
+    }
 
-export const deleteSchool = async (req: Request, res: Response) => {
+    // Update User (Admin)
+    await prisma.user.update({
+      where: { id: school.user.id },
+      data: { name, phone, address, city, state, country, pincode, profilePic: profilePicUrl },
+    });
+
+    // Update School
+    const updatedSchool = await prisma.school.update({
+      where: { id },
+      data: { SchoolName },
+    });
+
+    res.status(200).json({ message: "School updated successfully", school: updatedSchool });
+  } catch (error) {
+    next(handlePrismaError(error));
+  }
+};
+
+// Delete a school
+export const deleteSchool = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
   try {
     const { id } = req.params;
 
-    const school = await prisma.school.delete({
+    // Find the school with associated user
+    const school = await prisma.school.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    // Delete the admin user associated with the school
+    await prisma.user.delete({
+      where: { id: school.user.id },
+    });
+
+    // Delete the school
+    await prisma.school.delete({
       where: { id },
     });
 
-    console.log(school);
-    res.status(200).json({ message: "School deleted successfully", school });
+    res.status(200).json({ message: "School and associated admin deleted successfully" });
   } catch (error) {
-    console.error("Error deleting school:", error);
-    res.status(500).json({ message: "Internal server error", error });
+    next(handlePrismaError(error));
   }
 };
 
