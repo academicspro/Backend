@@ -65,13 +65,16 @@ import departmentRoutes from "./dashboard/admin/hrm/departmentRoutes";
 import designationsRoutes from "./dashboard/admin/hrm/designationsRoutes";
 import dutiesRoutes from "./dashboard/admin/hrm/dutiesRoutes";
 import payrollRoutes from "./dashboard/admin/hrm/payrollRoutes";
+import { injectUserByToken } from "../utils/jwt_utils";
+
+
 
 // Create a main API router
 const apiRouter = express.Router();
 
+apiRouter.use(injectUserByToken);
 
 
-// Mount all routes on the apiRouter
 apiRouter.use(schoolRoute);
 apiRouter.use(superAdminRoute);
 apiRouter.use(signinRoute);
