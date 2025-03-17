@@ -11,6 +11,7 @@ datasource db {
 
 model School {
   id         String   @id @default(cuid())
+  guid       String   @unique @default(cuid())
   SchoolName String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
@@ -55,8 +56,81 @@ model School {
   visitors       Visitor[] // Added relation to Visitor model
 }
 
+// ***********************************************HRM Models************************************************
+
+model Department {
+  id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
+  name        String
+  description String?
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Designation {
+  id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
+  name        String
+  description String?
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Payroll {
+  id          String        @id @default(cuid())
+  guid        String        @unique @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  schoolId    String
+  school      School        @relation(fields: [schoolId], references: [id])
+  periodStart DateTime
+  periodEnd   DateTime
+  grossSalary Float
+  deductions  Float         @default(0)
+  netSalary   Float
+  paymentDate DateTime?
+  status      PayrollStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+}
+
+// Inventory Models
+model InventoryItem {
+  id           String                 @id @default(cuid())
+  guid         String                 @unique @default(cuid())
+  name         String
+  description  String?
+  quantity     Int
+  schoolId     String
+  school       School                 @relation(fields: [schoolId], references: [id])
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @default(now()) @updatedAt
+  transactions InventoryTransaction[]
+}
+
+model InventoryTransaction {
+  id              String          @id @default(cuid())
+  guid            String          @unique @default(cuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem   @relation(fields: [inventoryItemId], references: [id])
+  type            TransactionType
+  quantity        Int
+  date            DateTime        @default(now())
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+}
+
 model User {
   id         String    @id @default(cuid())
+  guid       String    @unique @default(cuid())
   name       String
   email      String    @unique
   phone      String
@@ -114,8 +188,6 @@ model User {
   disputes        Dispute[] // Users raising disputes
   disputeMessages DisputeMessage[] // Users participating in dispute conversations
 
-  // Duty Duty[]
-
   // HRM fields
   employeeType          EmployeeType?
   departmentId          String?
@@ -129,6 +201,7 @@ model User {
 
 model PasswordResetToken {
   id        Int       @id @default(autoincrement())
+  guid      String    @unique @default(cuid())
   token     String    @unique
   userId    String
   createdAt DateTime  @default(now())
@@ -142,6 +215,7 @@ model PasswordResetToken {
 
 model plan {
   id           String   @id @default(cuid())
+  guid         String   @unique @default(cuid())
   name         String // Basic , Pro , Enterprise
   price        Float
   durationDays Int // 7,15,30
@@ -153,6 +227,7 @@ model plan {
 
 model subscription {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id])
   planId    String
@@ -166,6 +241,7 @@ model subscription {
 
 model Payment {
   id                String   @id @default(cuid())
+  guid              String   @unique @default(cuid())
   feeId             String
   fee               Fee      @relation(fields: [feeId], references: [id])
   amount            Float
@@ -182,6 +258,7 @@ model Payment {
 
 model SalaryPayment {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   teacherId   String
   teacher     Teacher  @relation(fields: [teacherId], references: [id])
   schoolId    String
@@ -197,6 +274,7 @@ model SalaryPayment {
 
 model Notification {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   feeId     String
   type      String // Reminder , Overdue
   sentAt    DateTime @default(now())
@@ -205,6 +283,7 @@ model Notification {
 
 model Ticket {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   title       String
   description String
   status      String   @default("Open") // Open , Closed
@@ -218,6 +297,7 @@ model Ticket {
 
 model Feedback {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   title       String
   description String
   schoolId    String
@@ -229,6 +309,7 @@ model Feedback {
 
 model Todo {
   id          String     @id @default(cuid())
+  guid        String     @unique @default(cuid())
   title       String
   description String
   status      TodoStatus @default(PENDING)
@@ -242,6 +323,7 @@ model Todo {
 
 model PaymentSecret {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   schoolId  String   @unique
   school    School   @relation(fields: [schoolId], references: [id])
   keyId     String
@@ -252,6 +334,7 @@ model PaymentSecret {
 
 model Fee {
   id          String    @id @default(cuid())
+  guid        String    @unique @default(cuid())
   studentId   String
   student     Student   @relation(fields: [studentId], references: [id])
   schoolId    String
@@ -269,6 +352,7 @@ model Fee {
 
 model Event {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   title       String
   description String
   startTime   DateTime
@@ -279,6 +363,7 @@ model Event {
 
 model Announcement {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   title       String
   description String
   date        DateTime
@@ -288,6 +373,7 @@ model Announcement {
 
 model Visitor {
   id         String    @id @default(cuid())
+  guid       String    @unique @default(cuid())
   name       String
   phone      String
   email      String?
@@ -307,6 +393,7 @@ model Visitor {
 
 model Teacher {
   id                    String         @id @default(cuid())
+  guid                  String         @unique @default(cuid())
   dateofJoin            DateTime? //@map("date_of_join")
   fatherName            String?
   motherName            String?
@@ -358,6 +445,7 @@ model Teacher {
 
 model Grade {
   id        String  @id @default(cuid())
+  guid      String  @unique @default(cuid())
   level     Int     @unique
   studentId String
   students  Student @relation(fields: [studentId], references: [id])
@@ -366,6 +454,7 @@ model Grade {
 
 model Class {
   id            String         @id @default(cuid())
+  guid          String         @unique @default(cuid())
   name          String         @unique
   capacity      Int
   teacherId     String?
@@ -379,6 +468,7 @@ model Class {
 
 model Subject {
   id       String    @id @default(cuid())
+  guid     String    @unique @default(cuid())
   name     String    @unique
   teachers Teacher[]
   lessons  Lesson[]
@@ -386,6 +476,7 @@ model Subject {
 
 model Lesson {
   id          String       @id @default(cuid())
+  guid        String       @unique @default(cuid())
   name        String
   day         Day
   startTime   DateTime
@@ -403,6 +494,7 @@ model Lesson {
 
 model Exam {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   title     String
   startTime DateTime
   endTime   DateTime
@@ -413,6 +505,7 @@ model Exam {
 
 model Assignment {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   title     String
   startDate DateTime
   dueDate   DateTime
@@ -423,6 +516,7 @@ model Assignment {
 
 model Result {
   id           String      @id @default(cuid())
+  guid         String      @unique @default(cuid())
   score        Int
   examId       String?
   exam         Exam?       @relation(fields: [examId], references: [id])
@@ -434,6 +528,7 @@ model Result {
 
 model Attendance {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   date      DateTime
   present   Boolean
   studentId String
@@ -448,6 +543,7 @@ model Attendance {
 
 model Student {
   id            String   @id @default(cuid())
+  guid          String   @unique @default(cuid())
   AcademicYear  String
   AdmissionNo   String
   AdmissionDate DateTime
@@ -548,12 +644,6 @@ model Student {
 
   BusAttendance BusAttendance[]
 
-  //  BusStop BusStop[]
-
-  // Route Route[]
-
-  // Bus Bus[]
-
   Complaint Complaint[]
 
   Room Room[]
@@ -567,10 +657,129 @@ model Student {
   OutpassRequest OutpassRequest[]
 }
 
+model Doubt {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  title     String
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  answers   Answer[]
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model PYQ {
+  id         String   @id @default(cuid())
+  guid       String   @unique @default(cuid())
+  question   String
+  solution   String
+  subject    String
+  topic      String
+  uploaderId String
+  uploader   User     @relation(fields: [uploaderId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Answer {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  content   String
+  userId    String
+  doubtId   String
+  user      User     @relation(fields: [userId], references: [id])
+  doubt     Doubt    @relation(fields: [doubtId], references: [id])
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Leaderboard {
+  id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  points      Int      @default(0)
+  coinsEarned Int      @default(0)
+  rank        Int
+  updatedAt   DateTime @updatedAt
+}
+
+model Competition {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Roadmap {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  title     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  topics    Topic[]
+  createdAt DateTime @default(now())
+}
+
+model Topic {
+  id        String  @id @default(cuid())
+  guid      String  @unique @default(cuid())
+  name      String
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  question  String
+  options   String[] // Array of options
+  answer    String
+  createdAt DateTime @default(now())
+
+  QuizResult QuizResult[]
+}
+
+model QuizResult {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  userId    String
+  quizId    String
+  user      User     @relation(fields: [userId], references: [id])
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  score     Int
+  createdAt DateTime @default(now())
+}
+
+model Newspaper {
+  id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
+  title     String
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  guid       String   @unique @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  coinsUsed  Int
+  amountPaid Float
+  status     String   @default("PENDING") // PENDING, COMPLETED, REJECTED
+  createdAt  DateTime @default(now())
+}
+
 // <------------------------------------------------------------- Parent Models are defined here ------------------------------------------------------------------->
 
 model Parent {
   id                String  @id @default(cuid())
+  guid              String  @unique @default(cuid())
   gardianName       String
   gardianRealtion   String
   gardianEmail      String
@@ -593,6 +802,7 @@ model Parent {
 
 model Library {
   id         String   @id @default(cuid())
+  guid       String   @unique @default(cuid())
   schoolId   String
   userId     String?
   finePerDay Float    @default(0.0) // Fine rate per day for overdue books
@@ -606,6 +816,7 @@ model Library {
 // Book model (represents book titles, including magazines and comics)
 model Book {
   id               String       @id @default(cuid())
+  guid             String       @unique @default(cuid())
   title            String
   isbn             String?      @unique
   publicationDate  DateTime?
@@ -627,6 +838,7 @@ model Book {
 // Author model
 model Author {
   id        String       @id @default(cuid())
+  guid      String       @unique @default(cuid())
   name      String
   books     BookAuthor[] // Many-to-many with books
   createdAt DateTime     @default(now())
@@ -636,6 +848,7 @@ model Author {
 // BookAuthor model (junction table for Book-Author relationship)
 model BookAuthor {
   bookId   String
+  guid     String @unique @default(cuid())
   authorId String
   book     Book   @relation(fields: [bookId], references: [id])
   author   Author @relation(fields: [authorId], references: [id])
@@ -646,6 +859,7 @@ model BookAuthor {
 // BookCopy model (represents individual physical copies)
 model BookCopy {
   id              String         @id @default(cuid())
+  guid            String         @unique @default(cuid())
   bookId          String
   accessionNumber String         @unique // Unique identifier for each copy
   status          BookCopyStatus @default(AVAILABLE)
@@ -658,6 +872,7 @@ model BookCopy {
 // BookIssue model (tracks borrowing of book copies)
 model BookIssue {
   id         String    @id @default(cuid())
+  guid       String    @unique @default(cuid())
   bookCopyId String
   userId     String
   issueDate  DateTime
@@ -676,6 +891,7 @@ model BookIssue {
 // Fine model
 model Fine {
   id          String    @id @default(cuid())
+  guid        String    @unique @default(cuid())
   bookIssueId String
   amount      Float
   reason      String
@@ -688,6 +904,7 @@ model Fine {
 // Dispute model
 model Dispute {
   id          String           @id @default(cuid())
+  guid        String           @unique @default(cuid())
   bookIssueId String
   userId      String
   reason      String
@@ -703,6 +920,7 @@ model Dispute {
 // DisputeMessage model (conversation thread for disputes)
 model DisputeMessage {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   disputeId String
   userId    String
   message   String
@@ -715,6 +933,7 @@ model DisputeMessage {
 
 model Hostel {
   id         String  @id @default(cuid())
+  guid       String  @unique @default(cuid())
   hostelName String?
   location   String?
   capacity   Int
@@ -743,6 +962,7 @@ model Hostel {
 
 model Room {
   id          String      @id @default(cuid())
+  guid        String      @unique @default(cuid())
   number      String
   type        RoomType
   status      RoomStatus  @default(VACANT)
@@ -756,6 +976,7 @@ model Room {
 
 model Inventory {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   name      String
   quantity  Int
   roomId    String
@@ -766,6 +987,7 @@ model Inventory {
 
 model AccommodationRequest {
   id        String        @id @default(cuid())
+  guid      String        @unique @default(cuid())
   studentId String
   student   Student       @relation(fields: [studentId], references: [id])
   hostelId  String
@@ -777,6 +999,7 @@ model AccommodationRequest {
 
 model HostelFee {
   id        String    @id @default(cuid())
+  guid      String    @unique @default(cuid())
   amount    Float
   dueDate   DateTime
   studentId String
@@ -791,6 +1014,7 @@ model HostelFee {
 
 model MedicalEmergency {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   description String
   date        DateTime
   studentId   String
@@ -803,6 +1027,7 @@ model MedicalEmergency {
 
 model OutpassRequest {
   id        String        @id @default(cuid())
+  guid      String        @unique @default(cuid())
   studentId String
   student   Student       @relation(fields: [studentId], references: [id])
   reason    String
@@ -815,6 +1040,7 @@ model OutpassRequest {
 
 model HostelExpense {
   id          String   @id @default(cuid())
+  guid        String   @unique @default(cuid())
   description String
   amount      Float
   date        DateTime
@@ -825,12 +1051,13 @@ model HostelExpense {
 }
 
 model Duty {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
+  guid        String  @unique @default(cuid())
   description String
   assignedTo  String?
   user        User?   @relation(fields: [assignedTo], references: [id])
   hostelId    String
-  hostel      Hostel @relation(fields: [hostelId], references: [id])
+  hostel      Hostel  @relation(fields: [hostelId], references: [id])
 
   name String
 
@@ -843,6 +1070,7 @@ model Duty {
 
 model Complaint {
   id          String          @id @default(cuid())
+  guid        String          @unique @default(cuid())
   description String
   studentId   String
   student     Student         @relation(fields: [studentId], references: [id])
@@ -857,6 +1085,7 @@ model Complaint {
 
 model Transport {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   schoolId  String
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
@@ -867,6 +1096,7 @@ model Transport {
 
 model Bus {
   id          String       @id @default(cuid())
+  guid        String       @unique @default(cuid())
   busNumber   String       @unique
   capacity    Int
   schoolId    String
@@ -884,6 +1114,7 @@ model Bus {
 
 model Driver {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   name      String
   license   String   @unique
   busId     String
@@ -896,6 +1127,7 @@ model Driver {
 
 model Conductor {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   name      String
   busId     String
   bus       Bus      @relation(fields: [busId], references: [id])
@@ -907,6 +1139,7 @@ model Conductor {
 
 model Incharge {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   name      String
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id])
@@ -916,6 +1149,7 @@ model Incharge {
 
 model Route {
   id        String    @id @default(cuid())
+  guid      String    @unique @default(cuid())
   name      String
   busId     String
   bus       Bus       @relation(fields: [busId], references: [id])
@@ -929,6 +1163,7 @@ model Route {
 
 model BusStop {
   id        String    @id @default(cuid())
+  guid      String    @unique @default(cuid())
   name      String
   location  String
   routeId   String
@@ -942,6 +1177,7 @@ model BusStop {
 
 model BusAttendance {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   studentId String
   student   Student  @relation(fields: [studentId], references: [id])
   busId     String
@@ -956,6 +1192,7 @@ model BusAttendance {
 
 model Account {
   id        String   @id @default(cuid())
+  guid      String   @unique @default(cuid())
   schoolId  String
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
@@ -1072,180 +1309,6 @@ enum TransactionType {
   ADD
   REMOVE
   TRANSFER
-}
-
-model Doubt {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  answers   Answer[]
-  upvotes   Int      @default(0)
-  createdAt DateTime @default(now())
-}
-
-model PYQ {
-  id         String   @id @default(cuid())
-  question   String
-  solution   String
-  subject    String
-  topic      String
-  uploaderId String
-  uploader   User     @relation(fields: [uploaderId], references: [id])
-  createdAt  DateTime @default(now())
-}
-
-model Answer {
-  id        String   @id @default(cuid())
-  content   String
-  userId    String
-  doubtId   String
-  user      User     @relation(fields: [userId], references: [id])
-  doubt     Doubt    @relation(fields: [doubtId], references: [id])
-  upvotes   Int      @default(0)
-  createdAt DateTime @default(now())
-}
-
-model Leaderboard {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
-  points      Int      @default(0)
-  coinsEarned Int      @default(0)
-  rank        Int
-  updatedAt   DateTime @updatedAt
-}
-
-model Competition {
-  id        String   @id @default(cuid())
-  name      String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  score     Int      @default(0)
-  createdAt DateTime @default(now())
-}
-
-model Roadmap {
-  id        String   @id @default(cuid())
-  title     String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  topics    Topic[]
-  createdAt DateTime @default(now())
-}
-
-model Topic {
-  id        String  @id @default(cuid())
-  name      String
-  roadmapId String
-  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
-}
-
-model Quiz {
-  id        String   @id @default(cuid())
-  question  String
-  options   String[] // Array of options
-  answer    String
-  createdAt DateTime @default(now())
-
-  QuizResult QuizResult[]
-}
-
-model QuizResult {
-  id        String   @id @default(cuid())
-  userId    String
-  quizId    String
-  user      User     @relation(fields: [userId], references: [id])
-  quiz      Quiz     @relation(fields: [quizId], references: [id])
-  score     Int
-  createdAt DateTime @default(now())
-}
-
-model Newspaper {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-}
-
-model Transaction {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  coinsUsed  Int
-  amountPaid Float
-  status     String   @default("PENDING") // PENDING, COMPLETED, REJECTED
-  createdAt  DateTime @default(now())
-}
-
-// ***********************************************HRM Models************************************************
-
-model Department {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  schoolId    String
-  school      School   @relation(fields: [schoolId], references: [id])
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-}
-
-model Designation {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  schoolId    String
-  school      School   @relation(fields: [schoolId], references: [id])
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-}
-
-model Payroll {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  schoolId    String
-  school      School        @relation(fields: [schoolId], references: [id])
-  periodStart DateTime
-  periodEnd   DateTime
-  grossSalary Float
-  deductions  Float         @default(0)
-  netSalary   Float
-  paymentDate DateTime?
-  status      PayrollStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now()) @updatedAt
-}
-
-// Inventory Models
-model InventoryItem {
-  id           String                 @id @default(cuid())
-  name         String
-  description  String?
-  quantity     Int
-  schoolId     String
-  school       School                 @relation(fields: [schoolId], references: [id])
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @default(now()) @updatedAt
-  transactions InventoryTransaction[]
-}
-
-model InventoryTransaction {
-  id              String          @id @default(cuid())
-  inventoryItemId String
-  inventoryItem   InventoryItem   @relation(fields: [inventoryItemId], references: [id])
-  type            TransactionType
-  quantity        Int
-  date            DateTime        @default(now())
-  userId          String?
-  user            User?           @relation(fields: [userId], references: [id])
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @default(now()) @updatedAt
 }
 
 // goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 
