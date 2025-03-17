@@ -9,7 +9,7 @@ import { errorHandler } from "./middlewares/errorMiddleware";
 import { authenticateToken, injectUserByToken } from "./utils/jwt_utils";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import apiRouter from "../src/routes/app"; // Import the consolidated routes
+import apiRouter from "../src/routes/app";
 import { sendErrorMessageToSupport } from "./utils/mailer";
 import { getErrorStack } from "./utils/common_utils";
 
@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 });
 
 // Mount all API routes under "/api/v1"
-app.use("/api/v1",authenticateToken, apiRouter);
+app.use("/api/v1", authenticateToken, apiRouter);
 
 // Error handling middleware
 app.use(errorHandler);
