@@ -52,7 +52,7 @@ model School {
   duties         Duty[]
   payrolls       Payroll[]
   inventoryItems InventoryItem[]
-  visitors  Visitor[]  // Added relation to Visitor model
+  visitors       Visitor[] // Added relation to Visitor model
 }
 
 model User {
@@ -169,7 +169,7 @@ model Payment {
   feeId             String
   fee               Fee      @relation(fields: [feeId], references: [id])
   amount            Float
-  razorpayOrderId   String ? @unique
+  razorpayOrderId   String?  @unique
   razorpayPaymentId String?
   method            String? // Cash , Online
   status            String   @default("Pending") // Pending , PAID, Failed
@@ -251,21 +251,20 @@ model PaymentSecret {
 }
 
 model Fee {
-  id         String    @id @default(cuid())
-  studentId  String
-  student    Student   @relation(fields: [studentId], references: [id])
-  schoolId   String
-  school     School    @relation(fields: [schoolId], references: [id])
-  amount     Float
-  dueDate    DateTime
-  category   String
-  finePerDay Float     @default(0)
-  status     String    @default("Pending") // Pending , Partial, PAID , Overdue
-  Payment    Payment[]
+  id          String    @id @default(cuid())
+  studentId   String
+  student     Student   @relation(fields: [studentId], references: [id])
+  schoolId    String
+  school      School    @relation(fields: [schoolId], references: [id])
+  amount      Float
+  dueDate     DateTime
+  category    String
+  finePerDay  Float     @default(0)
+  status      String    @default("Pending") // Pending , Partial, PAID , Overdue
+  Payment     Payment[]
   paymentDate DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
 }
 
 model Event {
@@ -286,21 +285,22 @@ model Announcement {
   classId     String?
   class       Class?   @relation(fields: [classId], references: [id])
 }
+
 model Visitor {
-  id          String   @id @default(cuid())
-  name        String
-  phone       String
-  email       String?
-  purpose     String
-  token       String   @unique  // Unique token for QR code
-  validFrom   DateTime         // Start of validity period
-  validUntil  DateTime         // End of validity period
-  entryTime   DateTime?        // Time of entry
-  exitTime    DateTime?        // Time of exit
-  schoolId    String
-  school      School   @relation(fields: [schoolId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id         String    @id @default(cuid())
+  name       String
+  phone      String
+  email      String?
+  purpose    String
+  token      String    @unique // Unique token for QR code
+  validFrom  DateTime // Start of validity period
+  validUntil DateTime // End of validity period
+  entryTime  DateTime? // Time of entry
+  exitTime   DateTime? // Time of exit
+  schoolId   String
+  school     School    @relation(fields: [schoolId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
 }
 
 // <---------------------------------------------------------------- Teacher Models are defined here ------------------------------------------------------------------->
@@ -827,8 +827,8 @@ model HostelExpense {
 model Duty {
   id          String @id @default(cuid())
   description String
-  assignedTo  String
-  user        User   @relation(fields: [assignedTo], references: [id])
+  assignedTo  String?
+  user        User?   @relation(fields: [assignedTo], references: [id])
   hostelId    String
   hostel      Hostel @relation(fields: [hostelId], references: [id])
 

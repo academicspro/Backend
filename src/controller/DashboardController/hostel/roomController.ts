@@ -2,57 +2,69 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../../db/prisma";
 import { handlePrismaError } from "../../../utils/prismaErrorHandler";
 
-export const getHostels = async (req: Request, res: Response, next:NextFunction) => {
+// Create a new room
+export const createRoom = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const hostels = await prisma.hostel.findMany();
-    res.json(hostels);
-  } catch (error) {
-    next(handlePrismaError(error));
-  }
-};
-
-export const createHostel = async (req: Request, res: Response, next:NextFunction) => {
-  const { hostelName, location, capacity, schoolId } = req.body;
-  try {
-    const hostel = await prisma.hostel.create({
-      data: { hostelName, location, capacity, schoolId },
+    const { number, type, status, hostelId } = req.body;
+    const room = await prisma.room.create({
+      data: { number, type, status, hostelId },
     });
-    res.status(201).json(hostel);
+    res.status(201).json(room);
   } catch (error) {
     next(handlePrismaError(error));
   }
 };
 
-export const getHostelById = async (req: Request, res: Response, next:NextFunction) => {
-  const { id } = req.params;
+// Get all rooms
+export const getAllRooms = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const hostel = await prisma.hostel.findUnique({ where: { id } });
-    if (!hostel) return res.status(404).json({ error: "Hostel not found" });
-    res.json(hostel);
+    const rooms = await prisma.room.findMany({
+      include: { hostel: true, students: true, inventories: true },
+    });
+    res.json(rooms);
   } catch (error) {
     next(handlePrismaError(error));
   }
 };
 
-export const updateHostel = async (req: Request, res: Response, next:NextFunction) => {
-  const { id } = req.params;
-  const { hostelName, location, capacity } = req.body;
+// Get a single room by ID
+export const getRoomById = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const hostel = await prisma.hostel.update({
+    const { id } = req.params;
+    const room = await prisma.room.findUnique({
       where: { id },
-      data: { hostelName, location, capacity },
+      include: { hostel: true, students: true, inventories: true },
     });
-    res.json(hostel);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+    res.json(room);
   } catch (error) {
     next(handlePrismaError(error));
   }
 };
 
-export const deleteHostel = async (req: Request, res: Response, next:NextFunction) => {
-  const { id } = req.params;
+
+
+// Update a room
+export const updateRoom = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await prisma.hostel.delete({ where: { id } });
-    res.status(204).send();
+    const { id } = req.params;
+    const { number, type, status, hostelId } = req.body;
+    const room = await prisma.room.update({
+      where: { id },
+      data: { number, type, status, hostelId },
+    });
+    res.json(room);
+  } catch (error) {
+    next(handlePrismaError(error));
+  }
+};
+
+// Delete a room
+export const deleteRoom = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    await prisma.room.delete({ where: { id } });
+    res.json({ message: "Room deleted successfully" });
   } catch (error) {
     next(handlePrismaError(error));
   }

@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../../db/prisma";
 import Razorpay from "razorpay";
 
-export async function recordCashPayment(req: Request, res: Response, next: NextFunction) {
+// Create a cash payment record
+export async function recordCashPayment(req: Request, res: Response, next: NextFunction):Promise<any> {
   try {
     const { feeId, amount } = req.body;
 
@@ -39,6 +40,7 @@ export async function recordCashPayment(req: Request, res: Response, next: NextF
   }
 }
 
+// Create an online payment order via Razorpay
 export async function createPaymentOrder(req: Request, res: Response, next: NextFunction) {
   try {
     const { feeId, amount } = req.body;
@@ -86,6 +88,7 @@ export async function createPaymentOrder(req: Request, res: Response, next: Next
   }
 }
 
+// Handle Razorpay webhook for payment success/failure
 export async function handleWebhook(req: Request, res: Response, next: NextFunction) {
   try {
     const { event, payload } = req.body;
@@ -132,6 +135,62 @@ export async function handleWebhook(req: Request, res: Response, next: NextFunct
     }
 
     res.json({ message: "Webhook handled successfully" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all payments
+export async function getAllPayments(req: Request, res: Response, next: NextFunction) {
+  try {
+    const payments = await prisma.payment.findMany();
+    res.json(payments);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get a single payment by ID
+export async function getPaymentById(req: Request, res: Response, next: NextFunction):Promise<any> {
+  try {
+    const { id } = req.params;
+    const payment = await prisma.payment.findUnique({ where: { id } });
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    res.json(payment);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Update payment status manually
+export async function updatePayment(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id },
+      data: { status },
+    });
+
+    res.json(updatedPayment);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Delete a payment record
+export async function deletePayment(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+
+    await prisma.payment.delete({ where: { id } });
+
+    res.json({ message: "Payment deleted successfully" });
   } catch (error) {
     next(error);
   }
