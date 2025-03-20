@@ -3,7 +3,7 @@ import { getAllUsers, getUserById } from "../../controller/superadmin/userContro
 
 const router = express.Router();
 
-router.get("/users", getAllUsers );
-router.get("/user/:id", getUserById );
+router.get("/get-all", getAllUsers );
+router.get("/get/:id", getUserById );
 
 export default router;

@@ -55,6 +55,7 @@ model School {
   inventoryItems InventoryItem[]
   visitors       Visitor[]
   todo           Todo[]
+  schoolFeatureRequests SchoolFeatureRequests[]
 }
 
 // ***********************************************HRM Models************************************************
@@ -143,7 +144,6 @@ model User {
   pincode    String  @map("postal_code")
   bloodType  String  @map("blood_type")
   sex        UserSex @map("gender")
-  role       Role    @default(superadmin) @map("user_role")
   schoolId   String? @map("school_id")
   school     School?
 
@@ -187,19 +187,21 @@ model User {
 
   Transaction Transaction[]
 
-  bookIssues      BookIssue[]
-  disputes        Dispute[]
-  disputeMessages DisputeMessage[]
-
   employeeType  EmployeeType? @map("employee_type")
   departmentId  String?       @map("department_id")
   department    Department?   @relation(fields: [departmentId], references: [id])
   designationId String?       @map("designation_id")
   designation   Designation?  @relation(fields: [designationId], references: [id])
+  role          Role          @default(superadmin) @map("user_role")
 
   duties                Duty[]
   payrolls              Payroll[]
   inventoryTransactions InventoryTransaction[]
+  userPermissions       UserPermissions[]
+  bookIssues            BookIssue[]
+  disputes              Dispute[]
+  disputeMessages       DisputeMessage[]
+  schoolFeatureRequests SchoolFeatureRequests[]
 }
 
 model PasswordResetToken {
@@ -477,12 +479,13 @@ model Class {
   capacity      Int            @map("capacity")
   teacherId     String?        @map("teacher_id")
   teacher       Teacher?       @relation(fields: [teacherId], references: [id])
-  gradeId       String         @map("grade_id")
-  grade         Grade          @relation(fields: [gradeId], references: [id])
+  // gradeId       String         @map("grade_id")
+  // grade         Grade          @relation(fields: [gradeId], references: [id])
   lessons       Lesson[]
   events        Event[]
   announcements Announcement[]
   visitors      Visitor[]
+  grades        Grade[]
 
   Student Student[]
 }
@@ -1122,6 +1125,35 @@ model Account {
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+}
+
+model UserPermissions {
+  id               Int      @id @default(autoincrement())
+  guid             String   @unique @default(uuid()) @map("guid")
+  userId           String?  @map("user_id") @db.VarChar(255)
+  moduleName       String   @map("module_name") @db.VarChar(255)
+  modulePermission String   @map("module_permission") @db.VarChar(255)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map(name: "user_permissions")
+}
+
+model SchoolFeatureRequests {
+  id               String   @id @default(cuid())
+  userId           String  @map("user_id") @db.VarChar(255)
+  schoolId         String  @map("school_id") @db.VarChar(255)
+  moduleName       String   @map("module_name") @db.VarChar(255)
+  status            Int   @map("status") @db.Integer
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@map(name: "school_feature_requests")
 }
 
 // <---------------------------------------------------------------- All Enums are defined here  ------------------------------------------------------------------->

@@ -12,6 +12,7 @@ import { Server } from "socket.io";
 import apiRouter from "../src/routes/app";
 import { sendErrorMessageToSupport } from "./utils/mailer";
 import { getErrorStack } from "./utils/common_utils";
+import signinRoute from "./routes/signin/signinRoute";
 
 dotenv.config();
 
@@ -31,7 +32,9 @@ app.get("/", (req, res) => {
   res.send("Backend is live");
 });
 
-// Mount all API routes under "/api/v1"
+app.use("/api/v1/auth", signinRoute)
+
+
 app.use("/api/v1", authenticateToken, apiRouter);
 
 // Error handling middleware

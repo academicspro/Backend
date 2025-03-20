@@ -57,6 +57,7 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
       motherName,
       dateOfBirth,
     } = req.body;
+    console.log(req.body);
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     console.log("Logging Requested File", req.files);
 
@@ -200,7 +201,7 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
         youtube,
 
         Resume: resumeUpload.url,
-        joiningLetter: resumeUpload.url,
+        joiningLetter: joiningLetterUpload.url,
 
         school: {
           connect: { id: schoolId },

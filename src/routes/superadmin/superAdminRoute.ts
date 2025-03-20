@@ -5,11 +5,11 @@ import multer from 'multer';
 const router = express.Router();
 const upload = multer();
 
-router.post('/superadmin',upload.single("profilePic"), registerSuperAdmin);
-router.get('/superadmin',getAllSuperAdmin);
-router.get('/superadmin/:id',getSuperAdminById);
-router.put('/superadmin/:id',updateSuperAdmin);
-router.delete('/superadmin/:id',deleteSuperAdmin);
+router.post('/add',upload.single("profilePic"), registerSuperAdmin);
+router.get('/get-all',getAllSuperAdmin);
+router.get('/get/:id',getSuperAdminById);
+router.put('/update/:id',updateSuperAdmin);
+router.delete('/delete/:id',deleteSuperAdmin);
 
 
 export default router;

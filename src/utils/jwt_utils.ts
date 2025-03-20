@@ -4,6 +4,10 @@ import { NextFunction, Response, Request } from "express";
 import { CONFIG } from "../config";
 import { IJwtUserObj } from "../models/types/users";
 import { prisma } from "../db/prisma";
+import UserPermissionsModel from "../models/UserPermissionsModel.model";
+import { Role } from "@prisma/client";
+import { compareUserPermissionHandler } from "./common-utils";
+import UserModel from "../models/UserModel.model";
 
 export const getJwtToken = async (
   data: any,
@@ -150,12 +154,87 @@ export function permit(...permittedRoles: Array<string>) {
   };
 }
 
-const verifyToken = async (token: string, key: string) => {
-  if (!token) return {};
+// middleware for validate module access or not
+export function validateModuleAccess(moduleName: string): any {
+  // return a middleware
+  return (request: Request, response: Response, next: NextFunction) => {
+    return new Promise(async (resolve, reject) => {
+      const { user } = request;
 
-  return new Promise((resolve, reject) =>
-    jwt.verify(token, key, (err, decoded) =>
-      err ? reject("Invalid token") : resolve(decoded)
-    )
-  );
-};
+      if (user) {
+        const userModelObj = new UserModel();
+        const userObj = await userModelObj.getByParams({
+          id: user.id,
+          isActive: 1,
+        });
+
+        if (!userObj) {
+          return response.status(403).json({ staus: "error", errors: "Invalid access" });
+        }
+
+        if (userObj.role === Role.superadmin) {
+          resolve(next()); // if user is admin then permission is allowed, so continue on the next middleware
+        }
+
+        if (userObj.role !== Role.superadmin) {
+          const userPermissionsModelObj = new UserPermissionsModel();
+          const permissionObj = await userPermissionsModelObj.getByParams({
+            userId: user.id,
+            moduleName: moduleName,
+          });
+
+          if (!permissionObj) {
+            return response.status(403).json({ staus: "error", errors: "Invalid access" });
+          }
+          const allPermission = permissionObj.modulePermission.split("").map((val) => parseInt(val));
+
+          if (allPermission[1] !== 1) {
+            return response.status(403).json({ staus: "error", errors: "Invalid access" });
+          }
+
+          resolve(next()); // permission is allowed, so continue on the next middleware
+        }
+      } else {
+        return response.status(403).json({ staus: "error", errors: "Invalid access" });
+      }
+    });
+  };
+}
+
+// middleware for validate the path's access or not of specified module
+export function validatePathAccess(moduleName: string) {
+  // return a middleware
+  return (request: any, response: any, next: any) => {
+    return new Promise(async (resolve, reject) => {
+      const { user, path } = request;
+
+      if (user) {
+        if (user.role === Role.superadmin) {
+          resolve(next()); // if user is super admin then permission is allowed, so continue on the next middleware
+        }
+
+        if (user.role !== Role.superadmin) {
+          const userPermissionsModelObj = new UserPermissionsModel();
+          const permissionObj = await userPermissionsModelObj.getByParams({
+            userId: user.id,
+            moduleName: moduleName,
+          });
+
+          if (!permissionObj) {
+            return response.status(403).json({ staus: "error", errors: "Invalid access" });
+          }
+
+          const haveAccess = await compareUserPermissionHandler(permissionObj, path);
+
+          if (!haveAccess) {
+            return response.status(403).json({ staus: "error", errors: "Invalid access" });
+          }
+
+          resolve(next()); // permission is allowed, so continue on the next middleware
+        }
+      } else {
+        return response.status(403).json({ staus: "error", errors: "Invalid access" });
+      }
+    });
+  };
+}

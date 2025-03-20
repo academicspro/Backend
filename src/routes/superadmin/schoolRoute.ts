@@ -6,10 +6,10 @@ import multer from 'multer';
 const router = express.Router();
 const upload = multer();
 
-router.post("/school/register",upload.single("profilePic"), registerSchool);
-router.get("/schools", getAllSchools);
-router.get("/school/:id", getSchoolById);
-router.put("/school/:id", updateSchool);
-router.delete("/school/:id", deleteSchool);
+router.post("/register",upload.single("profilePic"), registerSchool);
+router.get("/get-all", getAllSchools);
+router.get("/get/:id", getSchoolById);
+router.put("/update/:id", updateSchool);
+router.delete("/delete/:id", deleteSchool);
 
 export default router;

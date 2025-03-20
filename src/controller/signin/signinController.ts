@@ -4,6 +4,10 @@ import bcrypt from "bcrypt";
 
 import { getJwtToken } from "../../utils/jwt_utils";
 import { CONFIG } from "../../config";
+import { getErrorMessage } from "../../utils/common_utils";
+import { IUserPermission } from "../../models/types/user-permissions";
+import UserPermissionsModel from "../../models/UserPermissionsModel.model";
+import UserModel from "../../models/UserModel.model";
 
 // Sign-In Controller
 export const signIn = async (req: Request, res: Response): Promise<void> => {
@@ -103,5 +107,53 @@ export const getUserProfile = async (userId: string) => {
     };
   } catch (error: any) {
     throw new Error(error.message);
+  }
+};
+
+export const getUserPermissions = async (userId: string) => {
+  try {
+    const usersModelObj = new UserModel();
+    const userPermissionsModelObj = new UserPermissionsModel();
+
+    const userObj = await usersModelObj.getByParams({
+      id: userId,
+    });
+
+    if (!userObj) {
+      throw new Error("Invalid request");
+    }
+
+    const permissionList = await userPermissionsModelObj.getAll({
+      userId: userId,
+    });
+
+    if (permissionList.length <= 0) {
+      throw new Error("You don't have any permissions. Please contact admin");
+    }
+
+    const returnPermissionList: IUserPermission = {};
+
+    for (let i = 0; i < permissionList.length; i++) {
+      const permissionObj = permissionList[i];
+      const allPermissions = permissionObj.modulePermission.split("").map((value) => parseInt(value));
+
+      returnPermissionList[`${permissionObj.moduleName}Module`] = {
+        access: allPermissions.includes(1),
+        permissions: {
+          create: allPermissions[0],
+          read: allPermissions[1],
+          update: allPermissions[2],
+          delete: allPermissions[3],
+          managePermissions: allPermissions[4],
+        },
+      };
+    }
+
+
+    return {
+      permissions: returnPermissionList,
+    };
+  } catch (err) {
+    throw new Error(getErrorMessage(err));
   }
 };

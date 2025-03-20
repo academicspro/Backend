@@ -61,17 +61,32 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       allergies,
       medicationName,
       schoolName,
-
       schoolId,
       classId,
+      
       address,
+
       city,
       state,
       country,
       pincode,
     } = req.body;
 
+    console.log("Raw request body:", req.body);
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    console.log("Media Files:", req.files);
+
     // Validate required fields
+    
+
+    // Validate file uploads
+    const profilePicFile = files?.profilePic?.[0];
+    const medicalCertificate = files?.medicalCertificate?.[0];
+    const transferCertificate = files?.transferCertificate?.[0];
+
+    console.log("Logging Requested File",profilePicFile, medicalCertificate, transferCertificate);
     if (
       !academicYear ||
       !admissionNo ||
@@ -131,12 +146,6 @@ export const registerstudent = async (req: Request, res: Response, next: NextFun
       return;
     }
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-    // Validate file uploads
-    const profilePicFile = files?.profilePic?.[0];
-    const medicalCertificate = files?.medicalCertificate?.[0];
-    const transferCertificate = files?.transferCertificate?.[0];
 
     if (!profilePicFile) {
       res.status(400).json({ error: "Profile picture is required." });

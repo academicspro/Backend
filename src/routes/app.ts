@@ -1,9 +1,7 @@
 import express from "express";
 
-
-import schoolRoute from "./superadmin/schoolRoute";
-import superAdminRoute from "./superadmin/superAdminRoute";
-import signinRoute from "./signin/signinRoute";
+import superAdminRoute from "./superadmin/routes";
+// import signinRoute from "./signin/signinRoute";
 import forgotRoute from "./forgot-password/forgotRoute";
 import teacherRoutes from "./admin/schoolauthroutes/teacherRoutes";
 import studentRoutes from "./admin/schoolauthroutes/studentRoutes";
@@ -22,7 +20,6 @@ import eventRoutes from "./dashboard/admin/eventRoutes";
 import annoumcmentRoutes from "./dashboard/admin/annoumcmentRoutes";
 import paymentSecreateRoute from "./dashboard/admin/paymentSecreateRoute";
 import getProfileRoute from "./signin/getProfileRoute";
-import userRoutes from "./superadmin/userRoutes";
 import ticketRoutes from "./dashboard/superadmin/ticketRoutes";
 import feebackRoutes from "./dashboard/superadmin/feebackRoutes";
 import todoRoutes from "./dashboard/superadmin/todoRoutes";
@@ -31,6 +28,7 @@ import competitionRoutes from "./dashboard/admin/competitionRoutes";
 import leaderboardRoutes from "./dashboard/admin/leaderboardRoutes";
 import pyqRoutes from "./dashboard/admin/pyqRoutes";
 import transactionRoutes from "./dashboard/admin/transactionRoutes";
+import featuresRoutes from "./dashboard/admin/featuresRoutes";
 import roadmapRoutes from "./dashboard/student/roadmapRoutes";
 import topicRoutes from "./dashboard/student/topicRoutes";
 import newspaperRoutes from "./dashboard/teacher/newspaperRoutes";
@@ -65,19 +63,17 @@ import departmentRoutes from "./dashboard/admin/hrm/departmentRoutes";
 import designationsRoutes from "./dashboard/admin/hrm/designationsRoutes";
 import dutiesRoutes from "./dashboard/admin/hrm/dutiesRoutes";
 import payrollRoutes from "./dashboard/admin/hrm/payrollRoutes";
-import { injectUserByToken } from "../utils/jwt_utils";
-
-
+import { permit } from "../utils/jwt_utils";
+import { Role } from "@prisma/client";
+// import { injectUserByToken } from "../utils/jwt_utils";
 
 // Create a main API router
 const apiRouter = express.Router();
 
-apiRouter.use(injectUserByToken);
+// apiRouter.use(injectUserByToken);
 
-
-apiRouter.use(schoolRoute);
-apiRouter.use(superAdminRoute);
-apiRouter.use(signinRoute);
+apiRouter.use("/administrator", permit(Role.superadmin), superAdminRoute);
+// apiRouter.use(signinRoute);
 apiRouter.use(forgotRoute);
 apiRouter.use(teacherRoutes);
 apiRouter.use(studentRoutes);
@@ -96,7 +92,7 @@ apiRouter.use(eventRoutes);
 apiRouter.use(annoumcmentRoutes);
 apiRouter.use(paymentSecreateRoute);
 apiRouter.use(getProfileRoute);
-apiRouter.use(userRoutes);
+// apiRouter.use(userRoutes);
 apiRouter.use(ticketRoutes);
 apiRouter.use(feebackRoutes);
 apiRouter.use(todoRoutes);
@@ -105,6 +101,7 @@ apiRouter.use(competitionRoutes);
 apiRouter.use(leaderboardRoutes);
 apiRouter.use(pyqRoutes);
 apiRouter.use(transactionRoutes);
+apiRouter.use("/admin", featuresRoutes);
 apiRouter.use(roadmapRoutes);
 apiRouter.use(topicRoutes);
 apiRouter.use(newspaperRoutes);

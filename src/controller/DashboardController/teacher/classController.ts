@@ -5,9 +5,11 @@ import { prisma } from "../../../db/prisma";
 
 export const createClass = async (req: Request, res: Response) => {
   try {
-    const { name, capacity, teacherId, gradeId } = req.body;
+    const { name, capacity, teacherId } = req.body;
 
-    if (!name || !capacity || !teacherId || !gradeId) {
+    if (!name || !capacity || !teacherId 
+
+    ) {
       res.status(400).json({ error: "All fields are required" });
       return;
     }
@@ -19,7 +21,13 @@ export const createClass = async (req: Request, res: Response) => {
     }
 
     const newClass = await prisma.class.create({
-      data: { name, capacity, teacher: { connect: { id: teacherId } }, grade: { connect: { id: gradeId } } },
+      data: {
+        name,
+        capacity,
+        teacher: {
+          connect: { id: teacherId },
+        },
+      },
     });
 
     console.log(newClass);
