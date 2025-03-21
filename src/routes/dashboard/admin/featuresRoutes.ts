@@ -14,6 +14,7 @@ router.get('/features/get-all', async (req: Request, res: Response) => {
 
         const userModelObj = new UserModel();
         const userPermissionsModelObj = new UserPermissionsModel();
+        const schoolFeatureRequestsModelObj = new SchoolFeatureRequestsModel();
 
         const userObj = await userModelObj.getByParams({
             id: userId,
@@ -26,11 +27,12 @@ router.get('/features/get-all', async (req: Request, res: Response) => {
         const returnPermissionsList = [];
         for (const feature of FeaturesListObj) {
             const permissionObj = await userPermissionsModelObj.getByParams({ moduleName: feature, userId: userId });
+            const schoolFeatureRequestRecordObj = await schoolFeatureRequestsModelObj.getByParams({ userId: userId, moduleName: feature });
 
             returnPermissionsList.push({
                 moduleName: feature,
                 permission: permissionObj ? 1 : 0,
-                status: 0
+                status: schoolFeatureRequestRecordObj ? 1 : 0
             });
         }
 
