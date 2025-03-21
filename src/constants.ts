@@ -1,3 +1,1 @@
-export const FeaturesListObj = [
-  "library",
-];
+export const FeaturesListObj = ["Library", "Hostel", "Transport", "Accounts", "Library", "HRM", "Reports", "Settings"];
