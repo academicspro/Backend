@@ -10,7 +10,7 @@ router.get("/get-profile", authenticateToken, async (req, res) => {
   try {
     console.log(req.user);
     const user = await getUserProfile(req.user!.id);
-    const userPermissions = req.user!.role !== Role.superadmin && req.user!.role !== Role.admin ? await getUserPermissions(req.user!.id) : {};
+    const userPermissions = req.user!.role !== Role.superadmin ? await getUserPermissions(req.user!.id) : {};
 
     res.status(200).json({ success: "ok", user, ...userPermissions });
   } catch (error: any) {

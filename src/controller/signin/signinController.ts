@@ -8,6 +8,7 @@ import { getErrorMessage } from "../../utils/common_utils";
 import { IUserPermission } from "../../models/types/user-permissions";
 import UserPermissionsModel from "../../models/UserPermissionsModel.model";
 import UserModel from "../../models/UserModel.model";
+import { Role } from "@prisma/client";
 
 // Sign-In Controller
 export const signIn = async (req: Request, res: Response): Promise<void> => {
@@ -127,7 +128,7 @@ export const getUserPermissions = async (userId: string) => {
       userId: userId,
     });
 
-    if (permissionList.length <= 0) {
+    if (permissionList.length <= 0 && userObj.role !== Role.admin) {
       throw new Error("You don't have any permissions. Please contact admin");
     }
 
@@ -148,7 +149,6 @@ export const getUserPermissions = async (userId: string) => {
         },
       };
     }
-
 
     return {
       permissions: returnPermissionList,
