@@ -3,7 +3,6 @@ import { createFeedback, deleteFeedback, getAllFeedback, getFeedbackById, getFee
 
 const router = express.Router();    
 
-
 router.post("/create-feedback", createFeedback);
 router.get("/get-feedbacks", getAllFeedback);
 router.get("/get-feedback/:feedbackId", getFeedbackById);

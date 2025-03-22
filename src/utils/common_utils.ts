@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { validationResult, ResultFactory } from "express-validator";
 // import { IPermissionListObj } from "../models/types/users";
 
 import { CONFIG } from "../config";
@@ -56,3 +57,7 @@ export const generateOTP = async () => {
   }
   return OTP;
 };
+
+export const customValidationResult: ResultFactory<string> = validationResult.withDefaults({
+  formatter: (error) => error.msg as string,
+});

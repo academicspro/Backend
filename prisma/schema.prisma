@@ -47,14 +47,14 @@ model School {
 
   buses Bus[]
 
-  salaryPayment  SalaryPayment[]
-  departments    Department[]
-  designations   Designation[]
-  duties         Duty[]
-  payrolls       Payroll[]
-  inventoryItems InventoryItem[]
-  visitors       Visitor[]
-  todo           Todo[]
+  salaryPayment         SalaryPayment[]
+  departments           Department[]
+  designations          Designation[]
+  duties                Duty[]
+  payrolls              Payroll[]
+  inventoryItems        InventoryItem[]
+  visitors              Visitor[]
+  todo                  Todo[]
   schoolFeatureRequests SchoolFeatureRequests[]
 }
 
@@ -1133,6 +1133,7 @@ model UserPermissions {
   userId           String?  @map("user_id") @db.VarChar(255)
   moduleName       String   @map("module_name") @db.VarChar(255)
   modulePermission String   @map("module_permission") @db.VarChar(255)
+  status           Int      @default(0) @map("status") @db.Integer // 0 for inactive and 1 for active
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -1142,15 +1143,15 @@ model UserPermissions {
 }
 
 model SchoolFeatureRequests {
-  id               String   @id @default(cuid())
-  userId           String  @map("user_id") @db.VarChar(255)
-  schoolId         String  @map("school_id") @db.VarChar(255)
-  moduleName       String   @map("module_name") @db.VarChar(255)
-  status            Int   @map("status") @db.Integer
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id") @db.VarChar(255)
+  schoolId   String   @map("school_id") @db.VarChar(255)
+  moduleName String   @map("module_name") @db.VarChar(255)
+  status     Int      @map("status") @db.Integer
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
   school School @relation(fields: [schoolId], references: [id])
 
   @@map(name: "school_feature_requests")
