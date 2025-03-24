@@ -64,6 +64,7 @@ import dutiesRoutes from "./dashboard/admin/hrm/dutiesRoutes";
 import payrollRoutes from "./dashboard/admin/hrm/payrollRoutes";
 import { permit } from "../utils/jwt_utils";
 import { Role } from "@prisma/client";
+import planRoutes from "./dashboard/superadmin/planRoutes";
 
 // Create a main API router
 const apiRouter = express.Router();
@@ -134,5 +135,6 @@ apiRouter.use(departmentRoutes);
 apiRouter.use(designationsRoutes);
 apiRouter.use(dutiesRoutes);
 apiRouter.use(payrollRoutes);
+apiRouter.use(planRoutes);
 
 export default apiRouter;
