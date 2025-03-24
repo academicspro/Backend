@@ -12,10 +12,15 @@ import { Server } from "socket.io";
 import apiRouter from "../src/routes/app";
 import { sendErrorMessageToSupport } from "./utils/mailer";
 import { customValidationResult, getErrorMessage, getErrorStack } from "./utils/common_utils";
-import signinRoute from "./routes/signin/signinRoute";
+// import signinRoute from "./routes/signin/signinRoute";
+// import { body } from "express-validator";
+// import UserModel from "./models/UserModel.model";
+// import { CONFIG } from "./config";
+// import publicRouter from "./routes/public-routes/publicRoutes";
 import { body } from "express-validator";
 import UserModel from "./models/UserModel.model";
 import { CONFIG } from "./config";
+import signinRoute from "./routes/signin/signinRoute";
 
 dotenv.config();
 
@@ -35,7 +40,8 @@ app.get("/", (req, res) => {
   res.send("Backend is live");
 });
 
-app.use("/api/v1/auth", signinRoute);
+// app.use("/api/v1", publicRouter);
+app.use("/api/v1/auth", signinRoute)
 
 /**
  * refresh token
@@ -72,6 +78,7 @@ app.post(
       );
 
       // TODO: need to add refresh token
+
       const refreshToken = await getJwtToken(
         { userId: userObj.id, email: userObj.email, role: userObj.role },
         CONFIG.JWT_REFRESH_TOKEN_EXPIRY_TIME,
@@ -115,3 +122,5 @@ io.on("connection", (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+

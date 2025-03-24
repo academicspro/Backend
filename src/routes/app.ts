@@ -1,8 +1,7 @@
 import express from "express";
 
 import superAdminRoute from "./superadmin/routes";
-// import signinRoute from "./signin/signinRoute";
-import forgotRoute from "./forgot-password/forgotRoute";
+
 import teacherRoutes from "./admin/schoolauthroutes/teacherRoutes";
 import studentRoutes from "./admin/schoolauthroutes/studentRoutes";
 import accountRoutes from "./admin/schoolauthroutes/accountRoutes";
@@ -65,7 +64,6 @@ import dutiesRoutes from "./dashboard/admin/hrm/dutiesRoutes";
 import payrollRoutes from "./dashboard/admin/hrm/payrollRoutes";
 import { permit } from "../utils/jwt_utils";
 import { Role } from "@prisma/client";
-// import { injectUserByToken } from "../utils/jwt_utils";
 
 // Create a main API router
 const apiRouter = express.Router();
@@ -73,8 +71,8 @@ const apiRouter = express.Router();
 // apiRouter.use(injectUserByToken);
 
 apiRouter.use("/administrator", permit(Role.superadmin), superAdminRoute);
-// apiRouter.use(signinRoute);
-apiRouter.use(forgotRoute);
+
+
 apiRouter.use(teacherRoutes);
 apiRouter.use(studentRoutes);
 apiRouter.use(accountRoutes);
@@ -92,7 +90,7 @@ apiRouter.use(eventRoutes);
 apiRouter.use(annoumcmentRoutes);
 apiRouter.use(paymentSecreateRoute);
 apiRouter.use(getProfileRoute);
-// apiRouter.use(userRoutes);
+
 apiRouter.use(ticketRoutes);
 apiRouter.use(feebackRoutes);
 apiRouter.use(todoRoutes);

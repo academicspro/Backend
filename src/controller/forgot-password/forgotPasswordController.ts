@@ -36,6 +36,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         userId: user.id,
         expiresAt,
       },
+      
     });
 
     // Send the password reset email with the token
