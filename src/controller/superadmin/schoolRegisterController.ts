@@ -153,13 +153,13 @@ export const deleteSchool = async (req: Request, res: Response, next: NextFuncti
 export const getAllSchools = async (req: Request, res: Response) => {
   try {
     const schools = await prisma.school.findMany({
-      where: {
-        user: {
-          role: "admin", // Directly filter based on the role
-        },
-      },
+      // where: {
+      //   user: {
+      //     role: "admin", 
+      //   },
+      // },
       include: {
-        user: true, // Fetch the associated user
+        user: true, 
       },
     });
 
