@@ -153,13 +153,13 @@ export const deleteSchool = async (req: Request, res: Response, next: NextFuncti
 export const getAllSchools = async (req: Request, res: Response) => {
   try {
     const schools = await prisma.school.findMany({
-      // where: {
-      //   user: {
-      //     role: "admin", 
-      //   },
-      // },
+      where: {
+        user: {
+          role: "admin",
+        },
+      },
       include: {
-        user: true, 
+        user: true,
       },
     });
 
@@ -171,7 +171,7 @@ export const getAllSchools = async (req: Request, res: Response) => {
   }
 };
 
-// // // Get a school by id
+// Get a school by id
 
 export const getSchoolById = async (req: Request, res: Response): Promise<any> => {
   try {

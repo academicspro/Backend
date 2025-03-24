@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 
-// app.use("/api/v1/administrator/super-admin/", superAdminRoute);
+app.use("/api/v1/administrator/super-admin/", superAdminRoute);
 // app.use("/api/v1", publicRouter);
 app.use("/api/v1/auth", signinRoute)
 

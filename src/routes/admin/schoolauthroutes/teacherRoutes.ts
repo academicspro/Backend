@@ -1,7 +1,7 @@
 import express from 'express';
 
 import multer from 'multer';
-import { deleteteacher, getAllteacher, getteacherById, registerteacher, updateteacher } from '../../../controller/admin/schoolauth/registerTeachercontroller';
+import { deleteteacher, getAllteacher, getteacherById,  registerteacher,  updateteacher } from '../../../controller/admin/schoolauth/registerTeachercontroller';
 
 const router = express.Router();
 const upload = multer();

@@ -156,9 +156,6 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
         role: "teacher",
         profilePic: profilePicUpload.url,
         password: hashedPassword,
-        school: {
-          connect: { id: schoolId },
-        },
       },
     });
 
