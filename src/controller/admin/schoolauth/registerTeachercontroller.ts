@@ -220,7 +220,7 @@ export const registerteacher = async (req: Request, res: Response, next: NextFun
   }
 };
 
-// Get all Super teachers
+// Get all  teachers
 
 export const getAllteacher = async (req: Request, res: Response) => {
   try {
@@ -237,7 +237,7 @@ export const getAllteacher = async (req: Request, res: Response) => {
   }
 };
 
-// Get Super teacher by ID
+// Get  teacher by ID
 
 export const getteacherById = async (req: Request, res: Response) => {
   try {
@@ -259,7 +259,7 @@ export const getteacherById = async (req: Request, res: Response) => {
   }
 };
 
-// Update Super teacher
+// Update  teacher
 
 export const updateteacher = async (req: Request, res: Response) => {
   try {
@@ -318,6 +318,25 @@ export const deleteteacher = async (req: Request, res: Response) => {
     res.status(200).json({ message: " teacher deleted successfully" });
   } catch (error) {
     console.error("Error deleting  teacher:", error);
+    res.status(500).json({ error: "Something went wrong. Please try again." });
+  }
+};
+
+// Get all  teachers by school
+
+export const getAllteacherBySchool = async (req: Request, res: Response) => {
+  try {
+    const { schoolId } = req.params;
+
+    const teacher = await prisma.teacher.findMany({
+      where: {
+        schoolId: schoolId,
+      },
+    });
+
+    res.status(200).json(teacher);
+  } catch (error) {
+    console.error("Error getting  teacher:", error);
     res.status(500).json({ error: "Something went wrong. Please try again." });
   }
 };

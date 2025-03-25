@@ -4,7 +4,7 @@ import { createPlan, deletePlan, getAllPlans, getPlanById, updatePlan } from '..
 const router = express.Router();
 
 router.post('/plan/create', createPlan);
-router.get('/plans', getAllPlans);
+router.get('/super/plans', getAllPlans);
 router.get('/plan/:id', getPlanById);
 router.put('/plan/:id', updatePlan);
 router.delete('/plan/:id', deletePlan);

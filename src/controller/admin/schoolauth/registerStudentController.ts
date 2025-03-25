@@ -447,3 +447,23 @@ function sendNotificationEmail(gardianEmail: any, arg1: string) {
 function next(arg0: ApiError) {
   throw new Error("Function not implemented.");
 }
+
+
+// Get student of a school
+
+export const getSchoolStudents = async (req: Request, res: Response) => {
+  try {
+    const { schoolId } = req.params;
+
+    const students = await prisma.student.findMany({
+      where: {
+        schoolId,
+      },
+    });
+
+    res.status(200).json(students);
+  } catch (error) {
+    console.error("Error getting school students:", error);
+    res.status(500).json({ error: "Something went wrong. Please try again." });
+  }
+};

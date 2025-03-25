@@ -1274,4 +1274,6 @@ enum TransactionType {
 
 // zoom meeting call , White board(With all Fetures ), screen sharing, recording, chat, raise hand, mute, unmute, video off, video on, share screen, invite, end meeting, leave meeting,
 
-// download reports ,  import Reports , export Reports , Custom report download , print , share Reports ,
+// download reports ,  import Reports , export Reports , Custom report download , print , share Reports 
+
+
