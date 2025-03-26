@@ -28,7 +28,13 @@ dotenv.config();
 const app = express();
 
 // Middleware setup
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "https://your-production-domain.com"], // Adjust based on your frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Enable cookies and authentication headers
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
