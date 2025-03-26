@@ -8,7 +8,7 @@ export const createPlan = async (req: Request, res: Response) => {
   try {
     const { name, price, durationDays,  } = req.body;
 
-    if (!name || !price || !durationDays ) {
+    if (!name || !price || !durationDays  ) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
