@@ -306,6 +306,7 @@ model Feedback {
 
   title       String   @map("feedback_title")
   description String   @map("feedback_description")
+  status      FeedbackStatus @default(PENDING) @map("feedback_status")
   schoolId    String   @map("school_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1267,6 +1268,12 @@ enum TransactionType {
   ADD
   REMOVE
   TRANSFER
+}
+
+enum FeedbackStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // goverment Exams  --> UPSC , SSC , Bank PO , Railway , Defence --> Link this modulef witj eduni hub project 

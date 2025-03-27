@@ -2,8 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../db/prisma";
 import { handlePrismaError } from "../../utils/prismaErrorHandler";
 
-// Create Feedback
-
+// Create Feedback (Initially PENDING)
 export const createFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, description, schoolId } = req.body;
@@ -12,8 +11,9 @@ export const createFeedback = async (req: Request, res: Response, next: NextFunc
       data: {
         title,
         description,
+        status: "PENDING", // Default status
         School: {
-          connect: { id: schoolId }, // Ensuring the school exists
+          connect: { id: schoolId },
         },
       },
     });
@@ -24,11 +24,12 @@ export const createFeedback = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Get all Feedback
-
+// Get all APPROVED Feedback (Publicly Available)
 export const getAllFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const feedbacks = await prisma.feedback.findMany();
+    const feedbacks = await prisma.feedback.findMany({
+      where: { status: "APPROVED" },
+    });
 
     res.status(200).json(feedbacks);
   } catch (error) {
@@ -36,18 +37,17 @@ export const getAllFeedback = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Get Feedback by ID
-
-export const getFeedbackById = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+// Get Feedback by ID (Only if APPROVED)
+export const getFeedbackById = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
   try {
     const { feedbackId } = req.params;
 
     const feedback = await prisma.feedback.findUnique({
-      where: { id: feedbackId },
+      where: { id: feedbackId, status: "APPROVED" },
     });
 
     if (!feedback) {
-      return res.status(404).json({ message: "Feedback not found" });
+      return res.status(404).json({ message: "Feedback not found or not approved" });
     }
 
     res.status(200).json(feedback);
@@ -56,13 +56,13 @@ export const getFeedbackById = async (req: Request, res: Response, next: NextFun
   }
 };
 
-// Get a School's Feedback
+// Get a School's Feedback (Only APPROVED ones)
 export const getFeedbackBySchool = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { schoolId } = req.params;
 
     const feedbacks = await prisma.feedback.findMany({
-      where: { schoolId },
+      where: { schoolId, status: "APPROVED" },
     });
 
     res.status(200).json(feedbacks);
@@ -71,18 +71,14 @@ export const getFeedbackBySchool = async (req: Request, res: Response, next: Nex
   }
 };
 
-// Update Feedback
-export const updateFeedback = async (req: Request, res: Response, next: NextFunction) => {
+// Admin: Approve Feedback
+export const approveFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { feedbackId } = req.params;
-    const { title, description } = req.body;
 
     const updatedFeedback = await prisma.feedback.update({
       where: { id: feedbackId },
-      data: {
-        title,
-        description,
-      },
+      data: { status: "APPROVED" },
     });
 
     res.status(200).json(updatedFeedback);
@@ -91,8 +87,46 @@ export const updateFeedback = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Delete Feedback
+// Admin: Reject Feedback
+export const rejectFeedback = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { feedbackId } = req.params;
 
+    const updatedFeedback = await prisma.feedback.update({
+      where: { id: feedbackId },
+      data: { status: "REJECTED" },
+    });
+
+    res.status(200).json(updatedFeedback);
+  } catch (error) {
+    next(handlePrismaError(error));
+  }
+};
+
+// Update Feedback (Only if not approved)
+export const updateFeedback = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
+  try {
+    const { feedbackId } = req.params;
+    const { title, description } = req.body;
+
+    const feedback = await prisma.feedback.findUnique({ where: { id: feedbackId } });
+
+    if (!feedback || feedback.status === "APPROVED") {
+      return res.status(403).json({ message: "Cannot edit approved feedback" });
+    }
+
+    const updatedFeedback = await prisma.feedback.update({
+      where: { id: feedbackId },
+      data: { title, description },
+    });
+
+    res.status(200).json(updatedFeedback);
+  } catch (error) {
+    next(handlePrismaError(error));
+  }
+};
+
+// Delete Feedback (Allowed for any status)
 export const deleteFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { feedbackId } = req.params;
