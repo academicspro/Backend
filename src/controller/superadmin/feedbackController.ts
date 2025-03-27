@@ -24,7 +24,7 @@ export const createFeedback = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Get all APPROVED Feedback (Publicly Available)
+// Get all  Feedback (Privately Available)
 export const getAllFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // const feedbacks = await prisma.feedback.findMany({
@@ -36,6 +36,21 @@ export const getAllFeedback = async (req: Request, res: Response, next: NextFunc
     next(handlePrismaError(error));
   }
 };
+
+
+// Get all APPROVED Feedback (Publicly Available)
+export const getAllPendingFeedback = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const feedbacks = await prisma.feedback.findMany({
+      where: { status: "APPROVED" },
+    });
+
+    res.status(200).json(feedbacks);
+  } catch (error) {
+    next(handlePrismaError(error));
+  }
+};
+
 
 // Get Feedback by ID (Only if APPROVED)
 export const getFeedbackById = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
