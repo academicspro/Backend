@@ -122,22 +122,16 @@ export const deleteSchool = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
 
-    // Find the school with associated user
+    // Check if school exists
     const school = await prisma.school.findUnique({
       where: { id },
-      include: { user: true },
     });
 
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
 
-    // Delete the admin user associated with the school
-    await prisma.user.delete({
-      where: { id: school.user.id },
-    });
-
-    // Delete the school
+    // Delete the school (Cascade will handle user deletion)
     await prisma.school.delete({
       where: { id },
     });
@@ -147,6 +141,7 @@ export const deleteSchool = async (req: Request, res: Response, next: NextFuncti
     next(handlePrismaError(error));
   }
 };
+
 
 // // Get all schools
 
