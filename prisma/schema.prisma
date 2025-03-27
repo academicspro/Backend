@@ -18,7 +18,7 @@ model School {
 
   userId String @unique @map("user_id")
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   students   Student[]
   teachers   Teacher[]
@@ -304,12 +304,12 @@ model Ticket {
 model Feedback {
   id String @id @default(cuid()) @map("feedback_id")
 
-  title       String   @map("feedback_title")
-  description String   @map("feedback_description")
+  title       String         @map("feedback_title")
+  description String         @map("feedback_description")
   status      FeedbackStatus @default(PENDING) @map("feedback_status")
-  schoolId    String   @map("school_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  schoolId    String         @map("school_id")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @default(now()) @updatedAt @map("updated_at")
 
   School School @relation(fields: [schoolId], references: [id])
 }
