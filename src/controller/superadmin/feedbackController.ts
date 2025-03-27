@@ -27,11 +27,12 @@ export const createFeedback = async (req: Request, res: Response, next: NextFunc
 // Get all  Feedback (Privately Available)
 export const getAllFeedback = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // const feedbacks = await prisma.feedback.findMany({
-    //   where: { status: "APPROVED" },
-    // });
+    const feedbacks = await prisma.feedback.findMany({
+      include: { School: true },
+    
+    });
 
-    res.status(200).json("Feedbacks");
+    res.status(200).json(feedbacks);
   } catch (error) {
     next(handlePrismaError(error));
   }
