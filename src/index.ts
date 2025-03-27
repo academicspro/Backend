@@ -28,12 +28,15 @@ dotenv.config();
 const app = express();
 
 // Middleware setup
-app.use(cors({
-  origin: ["http://localhost:3000", "https://your-production-domain.com"], // Adjust based on your frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true, // Enable cookies and authentication headers
-}));
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://your-production-domain.com"],
+    credentials: true, // Allow credentials (cookies, headers, etc.)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all necessary methods
+    allowedHeaders: ["Content-Type", "Authorization", "auth-token"], // Include auth-token
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -47,11 +50,9 @@ app.get("/", (req, res) => {
   res.send("Backend is live");
 });
 
-
-
 app.use("/api/v1/administrator/super-admin/", superAdminRoute);
 // app.use("/api/v1", publicRouter);
-app.use("/api/v1/auth", signinRoute)
+app.use("/api/v1/auth", signinRoute);
 
 /**
  * refresh token
@@ -132,5 +133,3 @@ io.on("connection", (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
