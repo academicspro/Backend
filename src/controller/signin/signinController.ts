@@ -23,6 +23,7 @@ export const signIn = async (req: Request, res: Response): Promise<void> => {
     // Find the user by email
     const user = await prisma.user.findUnique({
       where: { email },
+      include: { school: true }, // Ensure schoolId is fetched
     });
 
     if (!user) {
@@ -43,17 +44,26 @@ export const signIn = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // TODO: needto add guid to user and fix token expiry
-    // Generate JWT token
+    // Generate JWT token with schoolId
     const accessToken = await getJwtToken(
-      { userId: user.id, email: user.email, role: user.role },
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        schoolId: user.school?.id || null, // Include schoolId
+      },
       CONFIG.JWT_LOGIN_TOKEN_EXPIRY_TIME,
       false
     );
 
-    // TODO: need to add refresh token
+    // Generate refresh token
     const refreshToken = await getJwtToken(
-      { userId: user.id, email: user.email, role: user.role },
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        schoolId: user.school?.id || null, // Include schoolId
+      },
       CONFIG.JWT_REFRESH_TOKEN_EXPIRY_TIME,
       true
     );
@@ -72,6 +82,7 @@ export const signIn = async (req: Request, res: Response): Promise<void> => {
         name: user.name,
         email: user.email,
         role: user.role,
+        schoolId: user.school?.id || null, // Include schoolId in response
       },
     };
 
@@ -81,6 +92,7 @@ export const signIn = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Something went wrong. Please try again." });
   }
 };
+
 
 // Get user profile
 export const getUserProfile = async (userId: string) => {
