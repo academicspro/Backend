@@ -31,7 +31,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://your-production-domain.com"],
+    origin: ["http://localhost:3000", "https://frontend-u5p04pebr-academics-pros-projects.vercel.app/"],
     credentials: true, // Allow credentials (cookies, headers, etc.)
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all necessary methods
     allowedHeaders: ["Content-Type", "Authorization", "auth-token"], // Include auth-token
